@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Under Maintenance - KMS Election System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .election-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        .spin-slow {
+            animation: spin 3s linear infinite;
+        }
+        
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <!-- Logo Section -->
+                    <div class="flex items-center space-x-2">
+                        <!-- First Logo -->
+                        <div class="w-16 h-16 relative">
+                            <div class="w-full h-full rounded-full bg-white shadow-lg border-4 border-gray-200 flex items-center justify-center relative overflow-hidden">
+                                <img src="public/logo.jpg" alt="KMS Election Logo" class="w-full h-full rounded-full object-cover">
+                            </div>
+                        </div>
+                        <!-- Second Logo -->
+                        <div class="w-16 h-16 relative">
+                            <div class="w-full h-full rounded-full bg-white shadow-lg border-4 border-gray-200 flex items-center justify-center relative overflow-hidden">
+                                <img src="public/logo2.jpg" alt="KMS Election Logo 2" class="w-full h-full rounded-full object-cover">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h1 class="text-lg sm:text-2xl font-bold text-gray-900">
+                            KMS Election Platform
+                        </h1>
+                        <p class="text-xs sm:text-sm text-gray-600 hidden sm:block">
+                            Shree Panvel Kutchi Maheshwari Mahajan
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Maintenance Badge -->
+                <div class="flex items-center space-x-2">
+                    <div class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-orange-500 rounded-full pulse-animation"></div>
+                        <span>Under Maintenance</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Maintenance Message -->
+        <div class="text-center mb-12">
+            <!-- Maintenance Icon -->
+            <div class="mb-8">
+                <div class="inline-flex items-center justify-center w-32 h-32 bg-white rounded-full shadow-lg border-4 border-gray-200 float-animation">
+                    <svg class="w-16 h-16 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
+                We're Temporarily Down
+            </h1>
+            <h2 class="text-xl sm:text-2xl md:text-3xl font-semibold text-blue-600 mb-3 sm:mb-4">
+                For Scheduled Maintenance
+            </h2>
+            <p class="text-base sm:text-xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto px-4">
+                We're currently performing scheduled maintenance to improve our election system. 
+                We'll be back online shortly with enhanced features and better performance.
+            </p>
+        </div>
+
+        <!-- Maintenance Details Card -->
+        <div class="bg-white rounded-lg shadow-lg p-6 sm:p-8 mb-8">
+            <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-6 text-center">
+                Maintenance Information
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-900">Expected Duration</p>
+                            <p class="text-gray-600">2-4 hours</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-900">Status</p>
+                            <p class="text-gray-600">In Progress</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-900">What We're Doing</p>
+                            <p class="text-gray-600">System updates & security enhancements</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-900">Updates</p>
+                            <p class="text-gray-600">We'll notify you when we're back</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="bg-white rounded-lg shadow-lg p-6 sm:p-8 mb-8">
+            <h3 class="text-xl font-bold text-gray-900 mb-6 text-center">
+                Maintenance Progress
+            </h3>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-600">System Updates</span>
+                    <span class="text-sm text-gray-900">In Progress</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full pulse-animation" style="width: 75%"></div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-600">Security Enhancements</span>
+                    <span class="text-sm text-gray-900">Pending</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-gray-300 h-2 rounded-full" style="width: 0%"></div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-600">Final Testing</span>
+                    <span class="text-sm text-gray-900">Pending</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-gray-300 h-2 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="bg-white rounded-lg shadow-lg p-6 sm:p-8 mb-8">
+            <h3 class="text-xl font-bold text-gray-900 mb-6 text-center">
+                Need Immediate Assistance?
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                        </svg>
+                    </div>
+                    <h4 class="font-semibold text-gray-900 mb-2">Phone Support</h4>
+                    <p class="text-gray-600 mb-2">+91 93215 78416</p>
+                    <p class="text-sm text-gray-500">Available 24/7 during maintenance</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <h4 class="font-semibold text-gray-900 mb-2">Email Support</h4>
+                    <p class="text-gray-600 mb-2">support@electkms.org</p>
+                    <p class="text-sm text-gray-500">We'll respond within 30 minutes</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Organization Info -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-6 sm:p-8 text-white text-center">
+            <h2 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">
+                Shri Kutchi Maheshwari Madhyastha Mahajan Samiti
+            </h2>
+            <p class="text-base sm:text-xl mb-4 opacity-90">
+                Election 2025-26
+            </p>
+            <p class="text-sm opacity-75">
+                Registered Public Charitable Trust No – A – 1061 Gujarat<br>
+                B-2 Nityanand Krupa CHS, Deodhar Wada, Opp. Janakalyan Bank, Panvel (MH) – 410206
+            </p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 sm:py-12 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h3 class="text-lg font-semibold mb-4">KMS Election System</h3>
+                <p class="text-gray-400 text-sm mb-4">
+                    A secure, transparent, and accessible digital democracy platform for our community.
+                </p>
+                <div class="border-t border-gray-800 pt-4 text-sm text-gray-400">
+                    <p>&copy; 2025 KMS Election System. All rights reserved.</p>
+                    <p class="mt-2">
+                        Designed & Developed by 
+                        <span class="text-blue-400 font-semibold">Parth Gagdani</span>, 
+                        Team FullStack (Thane)
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auto-refresh script -->
+    <script>
+        // Auto-refresh every 30 seconds to check if maintenance is complete
+        setTimeout(function() {
+            window.location.reload();
+        }, 30000);
+
+        // Add some interactive elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click effect to maintenance badge
+            const badge = document.querySelector('.bg-orange-100');
+            if (badge) {
+                badge.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 150);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

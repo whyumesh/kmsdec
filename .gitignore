@@ -1,0 +1,28 @@
+node_modules
+.next
+uploads
+
+# Local Netlify folder
+.netlify
+
+# Environment files
+.env
+.env.local
+.env*.local
+
+# Build outputs
+dist
+build
+*.log
+tsconfig.tsbuildinfo
+
+# Data files (Excel, PDFs with voter data)
+*.xlsx
+*.xls
+*.pdf
+~$*.xlsx
+~$*.xls
+
+# Documentation files (optional - you may want to keep these)
+# DEPLOYMENT_VALIDATION.md
+# HOW_TO_VALIDATE_DEPLOYMENT.md

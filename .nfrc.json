@@ -1,0 +1,17 @@
+{
+  "buildCommand": "npm run build",
+  "functions": {
+    "node_bundler": "esbuild",
+    "external_node_modules": [
+      "@prisma/client",
+      "prisma",
+      "pg",
+      "bcryptjs",
+      "jsonwebtoken",
+      "nodemailer",
+      "@aws-sdk/client-s3",
+      "@aws-sdk/s3-request-presigner"
+    ]
+  }
+}
+

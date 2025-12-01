@@ -1,0 +1,33 @@
+# Netlify Configuration for Next.js 14
+[build]
+  command = "npm install && npx prisma generate && npm run build"
+  # Don't set publish - @netlify/plugin-nextjs handles this automatically
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_FLAGS = "--legacy-peer-deps"
+  # Reduce bundle size by optimizing dependencies
+  NODE_OPTIONS = "--max-old-space-size=4096"
+  # Skip type checking and linting during build for faster deployment
+  SKIP_ENV_VALIDATION = "true"
+
+# Optimize function size - exclude large dependencies from bundling
+# The Next.js plugin will handle bundling, and webpack externalization will prevent
+# large dependencies from being included in the function bundle
+[functions]
+  node_bundler = "esbuild"
+  # Don't include unnecessary files in function bundle
+  included_files = []
+
+# Required environment variables (set these in Netlify dashboard under Site settings → Environment variables)
+# 
+# DATABASE_URL=postgresql://user:password@host:port/database
+# JWT_SECRET=your-secret-jwt-key-here
+# STORJ_ACCESS_KEY_ID=your-storj-access-key
+# STORJ_SECRET_ACCESS_KEY=your-storj-secret-key
+# STORJ_ENDPOINT=https://gateway.storjshare.io
+# STORJ_REGION=global
+# STORJ_BUCKET_NAME=kmselection
