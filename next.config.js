@@ -180,6 +180,7 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Note: output standalone is disabled for Netlify compatibility
 }
 
 module.exports = nextConfig

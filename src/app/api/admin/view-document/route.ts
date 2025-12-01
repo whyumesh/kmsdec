@@ -3,6 +3,10 @@ import { readFile, readdir } from 'fs/promises'
 import { join, dirname } from 'path'
 import { prisma } from '@/lib/db'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function POST(request: NextRequest) {
   try {
     // Bypass session check for hardcoded admin - allow all document access
@@ -20,20 +24,21 @@ export async function POST(request: NextRequest) {
     console.log('Generating fresh URL for file key:', fileKey)
     
     // First, try to get the file from database
-    try {
-      let uploadedFile: any[] = []
-      
-      // Try with camelCase column names first (Prisma convention)
+    if (process.env.DATABASE_URL) {
       try {
-        uploadedFile = await prisma.$queryRaw`
-          SELECT * FROM uploaded_files WHERE "filePath" LIKE ${'%' + fileKey + '%'} LIMIT 1
-        ` as any[]
-      } catch (e) {
-        // Try with snake_case column names
-        uploadedFile = await prisma.$queryRaw`
-          SELECT * FROM uploaded_files WHERE file_path LIKE ${'%' + fileKey + '%'} LIMIT 1
-        ` as any[]
-      }
+        let uploadedFile: any[] = []
+        
+        // Try with camelCase column names first (Prisma convention)
+        try {
+          uploadedFile = await prisma.$queryRaw`
+            SELECT * FROM uploaded_files WHERE "filePath" LIKE ${'%' + fileKey + '%'} LIMIT 1
+          ` as any[]
+        } catch (e) {
+          // Try with snake_case column names
+          uploadedFile = await prisma.$queryRaw`
+            SELECT * FROM uploaded_files WHERE file_path LIKE ${'%' + fileKey + '%'} LIMIT 1
+          ` as any[]
+        }
 
       if (uploadedFile && uploadedFile.length > 0) {
         const file = uploadedFile[0]
@@ -225,33 +230,34 @@ export async function GET(request: NextRequest) {
     }
 
     // ALWAYS check database first for permanent access
-    try {
-      const fileName = filePath.split('/').pop() || ''
-      const fileNameWithoutExt = fileName.split('.').slice(0, -1).join('.')
-      
-      let uploadedFile: any[] = []
-      
+    if (process.env.DATABASE_URL) {
       try {
-        uploadedFile = await prisma.$queryRaw`
-          SELECT * FROM uploaded_files 
-          WHERE "filePath" = ${filePath} 
-             OR "filePath" = ${fileName}
-             OR "originalName" = ${fileName}
-             OR "originalName" LIKE ${'%' + fileNameWithoutExt + '%'}
-          ORDER BY "uploadedAt" DESC
-          LIMIT 1
-        ` as any[]
-      } catch (e) {
-        uploadedFile = await prisma.$queryRaw`
-          SELECT * FROM uploaded_files 
-          WHERE file_path = ${filePath} 
-             OR file_path = ${fileName}
-             OR original_name = ${fileName}
-             OR original_name LIKE ${'%' + fileNameWithoutExt + '%'}
-          ORDER BY uploaded_at DESC
-          LIMIT 1
-        ` as any[]
-      }
+        const fileName = filePath.split('/').pop() || ''
+        const fileNameWithoutExt = fileName.split('.').slice(0, -1).join('.')
+        
+        let uploadedFile: any[] = []
+        
+        try {
+          uploadedFile = await prisma.$queryRaw`
+            SELECT * FROM uploaded_files 
+            WHERE "filePath" = ${filePath} 
+               OR "filePath" = ${fileName}
+               OR "originalName" = ${fileName}
+               OR "originalName" LIKE ${'%' + fileNameWithoutExt + '%'}
+            ORDER BY "uploadedAt" DESC
+            LIMIT 1
+          ` as any[]
+        } catch (e) {
+          uploadedFile = await prisma.$queryRaw`
+            SELECT * FROM uploaded_files 
+            WHERE file_path = ${filePath} 
+               OR file_path = ${fileName}
+               OR original_name = ${fileName}
+               OR original_name LIKE ${'%' + fileNameWithoutExt + '%'}
+            ORDER BY uploaded_at DESC
+            LIMIT 1
+          ` as any[]
+        }
 
       if (uploadedFile && uploadedFile.length > 0) {
         const file = uploadedFile[0]

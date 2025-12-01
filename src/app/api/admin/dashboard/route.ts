@@ -7,6 +7,38 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export async function GET(request: NextRequest) {
+  // Gracefully handle missing database URL (e.g., during build)
+  if (!process.env.DATABASE_URL) {
+    console.warn('DATABASE_URL not available, returning empty dashboard data')
+    return NextResponse.json({
+      stats: {
+        yuvaPankh: { total: 0, pending: 0, approved: 0, rejected: 0 },
+        karobari: { total: 0, pending: 0, approved: 0, rejected: 0 },
+        trustMandal: { total: 0, pending: 0, approved: 0, rejected: 0 },
+        totalVoters: 0,
+        totalVotes: 0,
+        voterStats: {
+          total: 0,
+          active: 0,
+          inactive: 0,
+          voted: 0,
+          notVoted: 0,
+          votePercentage: '0.00',
+          gender: { male: 0, female: 0, other: 0 },
+          ageDistribution: {},
+          trusteeEligible: 0,
+          dataQuality: { withDob: 0, withoutDob: 0, dobPercentage: '0.00' },
+          zoneAssignments: { yuvaPankh: 0, trustee: 0, unassigned: 0 },
+          regionDistribution: [],
+          yuvaPankZoneDistribution: [],
+          trusteeZoneDistribution: []
+        }
+      },
+      recentCandidates: [],
+      timestamp: new Date().toISOString()
+    })
+  }
+
   try {
     console.log('Admin dashboard API called');
 
