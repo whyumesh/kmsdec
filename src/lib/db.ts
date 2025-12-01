@@ -7,8 +7,12 @@ const globalForPrisma = globalThis as unknown as {
 
 // Production database configuration
 const createPrismaClient = () => {
-  // Hardcode the Neon database URL for production reliability
-  const databaseUrl = "postgresql://neondb_owner:npg_S8lUFoJtxCj6@ep-dry-paper-a1fgokjj-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+  // Use environment variable for database URL (required for security)
+  const databaseUrl = process.env.DATABASE_URL
+  
+  if (!databaseUrl) {
+    throw new Error('DATABASE_URL environment variable is required')
+  }
 
   logger.info('Creating Prisma client', {
     url: databaseUrl.substring(0, 50) + '...',
