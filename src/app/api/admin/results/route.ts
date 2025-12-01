@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 
-// Cache for 30 seconds to reduce database load
-export const revalidate = 30
+// Force dynamic rendering - this route uses database queries
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 // In-memory cache with TTL
 const cache = new Map();
@@ -11,6 +11,16 @@ const CACHE_TTL = 30000; // 30 seconds
 
 export async function GET(request: NextRequest) {
   try {
+    // Gracefully handle missing database URL (e.g., during build)
+    if (!process.env.DATABASE_URL) {
+      console.warn('DATABASE_URL not available, returning empty results')
+      return NextResponse.json({
+        karobari: { zones: [], totalVoters: 0, totalVotes: 0 },
+        trustees: { zones: [], totalVoters: 0, totalVotes: 0 },
+        yuvaPankh: { zones: [], totalVoters: 0, totalVotes: 0 },
+        timestamp: new Date().toISOString()
+      })
+    }
     // Check cache first
     const cacheKey = 'election_results_v2'; // Changed cache key to force refresh
     const cached = cache.get(cacheKey);
