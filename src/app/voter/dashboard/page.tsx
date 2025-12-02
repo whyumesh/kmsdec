@@ -803,14 +803,16 @@ export default function VoterDashboard() {
                         <span>{content[selectedLanguage].yuvaPankhMembers}</span>
                       </CardTitle>
                       <CardDescription>
-                        {content[selectedLanguage].regionalParticipation}
+                        {selectedLanguage === 'english' 
+                          ? content[selectedLanguage].regionalParticipation
+                          : 'યુવા પાંખ સમિતિ ચૂંટણી'}
                         <span className="block mt-1 text-xs text-amber-600">
                           {selectedLanguage === 'english' 
                             ? 'Note: Karnataka & Goa and Raigad zones are pending. All other zones are completed.'
                             : (
                               <span className="block space-y-1">
-                                <span className="block">૧- યુવા પાંખ સમિતિ (૨ વિભાગ માંજ ચુંટણી પ્રક્રિયા થશે)</span>
-                                <span className="block">૨- યુવા પાંખ સમિતિમાં પોતાના વિભાગ મુજબજ મતદાન થશે.</span>
+                                <span className="block">૧- યુવા પાંખ સમિતિ (૨ પ્રદેશો)</span>
+                                <span className="block">૨- યુવા પાંખ સમિતિ (૨ પ્રદેશો)</span>
                                 <span className="block">૩- ફક્ત કર્ણાટક-ગોવા અને રાયગઢ વિભાગ માં જ મતદાન થશે. અન્ય વિભાગ ના ઉમેદવારો બિનહરીફ ચુંટાઇ આવેલ છે</span>
                               </span>
                             )}
