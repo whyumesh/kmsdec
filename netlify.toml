@@ -28,9 +28,24 @@
   included_files = []
 
 # Required environment variables (set these in Netlify dashboard under Site settings → Environment variables)
+# See NETLIFY_ENV_VARIABLES.md for complete checklist
 # 
-# DATABASE_URL=postgresql://user:password@host:port/database
-# JWT_SECRET=your-secret-jwt-key-here
+# CRITICAL (Required):
+# DATABASE_URL=postgresql://user:password@host:port/database?sslmode=require
+# JWT_SECRET=your-secret-jwt-key-here (min 32 chars)
+# CSRF_SECRET=your-csrf-secret-key-here (min 32 chars)
+# NEXTAUTH_SECRET=your-nextauth-secret-key-here (min 32 chars)
+# NEXTAUTH_URL=https://your-site-name.netlify.app
+# NODE_ENV=production
+#
+# IMPORTANT (For OTP):
+# TWILIO_ACCOUNT_SID=your-twilio-account-sid
+# TWILIO_AUTH_TOKEN=your-twilio-auth-token
+# TWILIO_PHONE_NUMBER=+1234567890
+# GMAIL_USER=your-email@gmail.com
+# GMAIL_APP_PASSWORD=your-gmail-app-password
+#
+# OPTIONAL (For file uploads):
 # STORJ_ACCESS_KEY_ID=your-storj-access-key
 # STORJ_SECRET_ACCESS_KEY=your-storj-secret-key
 # STORJ_ENDPOINT=https://gateway.storjshare.io
