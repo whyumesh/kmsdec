@@ -81,7 +81,14 @@ export async function GET(request: NextRequest) {
           karobariCandidate: { select: { id: true, zoneId: true, position: true, name: true } },
           trusteeCandidate: { select: { id: true, zoneId: true, position: true, name: true } },
           yuvaPankhCandidate: { select: { id: true, zoneId: true, position: true, name: true } },
-          yuvaPankhNominee: { select: { id: true, zoneId: true, position: true, name: true } }
+          yuvaPankhNominee: { select: { id: true, zoneId: true, position: true, name: true } },
+          voter: {
+            select: {
+              trusteeZoneId: true,
+              yuvaPankZoneId: true,
+              karobariZoneId: true
+            }
+          }
         },
         where: {
           election: {
@@ -181,12 +188,13 @@ export async function GET(request: NextRequest) {
       voteCountMap.set(`karobari_${zoneId}`, voters.size);
     });
     
-    // Process Trustee votes
+    // Process Trustee votes - count based on voter's trustee zone, not candidate's zone
     const trusteeVotersByZone = new Map();
     trusteeVotes.forEach(vote => {
       const candidate = vote.trusteeCandidate;
-      const zoneId = candidate?.zoneId || (candidate ? candidateZoneMap.get(candidate.id) : undefined);
-      const isNotaVote = candidate?.position === 'NOTA' || candidate?.name?.startsWith('NOTA');
+      // Use voter's trustee zone instead of candidate's zone
+      const zoneId = vote.voter?.trusteeZoneId || undefined;
+      const isNotaVote = candidate?.position === 'NOTA' || candidate?.name?.startsWith('NOTA') || candidate?.position?.startsWith('NOTA_SEAT');
       if (zoneId) {
         if (!trusteeVotersByZone.has(zoneId)) {
           trusteeVotersByZone.set(zoneId, new Set());
@@ -199,11 +207,12 @@ export async function GET(request: NextRequest) {
       voteCountMap.set(`trustee_${zoneId}`, voters.size);
     });
     
-    // Process Yuva Pankh votes
+    // Process Yuva Pankh votes - count based on voter's yuva pank zone, not candidate's zone
     const yuvaVotersByZone = new Map();
     yuvaVotes.forEach(vote => {
       const candidate = vote.yuvaPankhCandidate || vote.yuvaPankhNominee;
-      const zoneId = candidate?.zoneId || (candidate ? candidateZoneMap.get(candidate.id) : undefined);
+      // Use voter's yuva pank zone instead of candidate's zone
+      const zoneId = vote.voter?.yuvaPankZoneId || undefined;
       const isNotaVote = candidate?.position === 'NOTA' || candidate?.name?.startsWith('NOTA');
       if (zoneId) {
         if (!yuvaVotersByZone.has(zoneId)) {
@@ -240,6 +249,7 @@ export async function GET(request: NextRequest) {
           seats: zone.seats,
           totalVoters,
           totalVotes,
+          uniqueVoters, // Number of unique voters who voted in this zone
           actualVotes,
           notaVotes,
           turnoutPercentage: parseFloat(turnoutPercentage.toFixed(1))

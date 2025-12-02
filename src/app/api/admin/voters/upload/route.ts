@@ -213,7 +213,24 @@ export async function POST(request: NextRequest) {
 
       // Get appropriate zones for each election type based on region and age
       const region = voter.region || 'Mumbai'; // Default to Mumbai if no region specified
-      const electionZones = await findZonesForRegion(region, calculatedAge || 18);
+      
+      // Use manually selected zones if provided, otherwise auto-assign based on region
+      let electionZones = {
+        yuvaPankZone: voter.yuvaPankhZoneId || null,
+        karobariZone: voter.karobariZoneId || null,
+        trusteeZone: voter.trusteeZoneId || null
+      };
+      
+      // If zones are not manually selected, auto-assign based on region
+      if (!electionZones.yuvaPankZone && !electionZones.karobariZone && !electionZones.trusteeZone) {
+        electionZones = await findZonesForRegion(region, calculatedAge || 18);
+      } else {
+        // If some zones are manually selected, auto-assign only the missing ones
+        const autoZones = await findZonesForRegion(region, calculatedAge || 18);
+        if (!electionZones.yuvaPankZone) electionZones.yuvaPankZone = autoZones.yuvaPankZone;
+        if (!electionZones.karobariZone) electionZones.karobariZone = autoZones.karobariZone;
+        if (!electionZones.trusteeZone) electionZones.trusteeZone = autoZones.trusteeZone;
+      }
       
       // Get the primary zone (first available zone) for backward compatibility
       const primaryZoneId = electionZones.yuvaPankZone || electionZones.karobariZone || electionZones.trusteeZone;
@@ -258,13 +275,13 @@ export async function POST(request: NextRequest) {
           dob: voter.dob || null,
           gender: voter.gender || null,
           mulgam: voter.mulgam || null,
-          region: primaryZone?.name || region,
+          region: region,
           zoneId: primaryZone?.id, // Keep for backward compatibility
           yuvaPankZoneId: electionZones.yuvaPankZone,
           karobariZoneId: electionZones.karobariZone,
           trusteeZoneId: electionZones.trusteeZone,
           hasVoted: false,
-          isActive: true,
+          isActive: voter.isActive !== undefined ? voter.isActive : true,
         },
       });
 

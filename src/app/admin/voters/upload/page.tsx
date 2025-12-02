@@ -26,6 +26,8 @@ export default function VoterUploadPage() {
   const { isAuthenticated, isLoading: authLoading, isAdmin } = useAdminAuth()
   const [zones, setZones] = useState<Zone[]>([])
   const [voters, setVoters] = useState<Array<{
+    voterId?: string
+    region: string
     name: string
     gender: string
     dob: string
@@ -35,8 +37,11 @@ export default function VoterUploadPage() {
     yuvaPankhZoneId: string
     karobariZoneId: string
     trusteeZoneId: string
+    isActive: boolean
     age?: number
   }>>([{
+    voterId: '',
+    region: 'Mumbai',
     name: '', 
     gender: 'M', 
     dob: '', 
@@ -46,6 +51,7 @@ export default function VoterUploadPage() {
     yuvaPankhZoneId: '',
     karobariZoneId: '',
     trusteeZoneId: '',
+    isActive: true,
     age: undefined
   }])
   const [isUploading, setIsUploading] = useState(false)
@@ -204,6 +210,8 @@ export default function VoterUploadPage() {
 
   const addVoter = () => {
     setVoters([...voters, { 
+      voterId: '',
+      region: 'Mumbai',
       name: '', 
       gender: 'M', 
       dob: '', 
@@ -213,11 +221,12 @@ export default function VoterUploadPage() {
       yuvaPankhZoneId: '',
       karobariZoneId: '',
       trusteeZoneId: '',
+      isActive: true,
       age: undefined
     }])
   }
 
-  const updateVoter = (index: number, field: string, value: string | number) => {
+  const updateVoter = (index: number, field: string, value: string | number | boolean) => {
     const updatedVoters = [...voters]
     updatedVoters[index] = { ...updatedVoters[index], [field]: value }
     
@@ -255,8 +264,8 @@ export default function VoterUploadPage() {
 
     // Validate all voters
     for (const voter of voters) {
-      if (!voter.name.trim() || !voter.phone.trim() || !voter.mulgam.trim() || !voter.dob.trim() || !voter.gender.trim()) {
-        setError('Name, phone, gender, current city, and date of birth are required for each voter')
+      if (!voter.name.trim() || !voter.phone.trim() || !voter.mulgam.trim() || !voter.dob.trim() || !voter.gender.trim() || !voter.region.trim()) {
+        setError('Name, phone, gender, region, current city, and date of birth are required for each voter')
         return
       }
 
@@ -406,6 +415,41 @@ export default function VoterUploadPage() {
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor={`voterId-${index}`}>VID Number (Optional)</Label>
+                      <Input
+                        id={`voterId-${index}`}
+                        value={voter.voterId || ''}
+                        onChange={(e) => updateVoter(index, 'voterId', e.target.value)}
+                        placeholder="Auto-generated if left empty"
+                      />
+                      <p className="text-xs text-gray-500">Leave empty to auto-generate</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor={`region-${index}`}>Voting Region *</Label>
+                      <Select
+                        value={voter.region}
+                        onValueChange={(value) => updateVoter(index, 'region', value)}
+                        required
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Mumbai">Mumbai</SelectItem>
+                          <SelectItem value="Raigad">Raigad</SelectItem>
+                          <SelectItem value="Karnataka & Goa">Karnataka & Goa</SelectItem>
+                          <SelectItem value="Kutch">Kutch</SelectItem>
+                          <SelectItem value="Bhuj">Bhuj</SelectItem>
+                          <SelectItem value="Anjar">Anjar</SelectItem>
+                          <SelectItem value="Abdasa">Abdasa</SelectItem>
+                          <SelectItem value="Garda">Garda</SelectItem>
+                          <SelectItem value="Anya Gujarat">Anya Gujarat</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
                     <div className="space-y-2">
                       <Label htmlFor={`name-${index}`}>Full Name *</Label>
                       <Input
@@ -565,7 +609,33 @@ export default function VoterUploadPage() {
                       </div>
                     )}
 
-                    {/* Karobari Zone - Hidden from UI */}
+                    {/* Karobari Zone */}
+                    {voter.age !== undefined && voter.age >= 18 && (
+                      <div className="space-y-2">
+                        <Label htmlFor={`karobari-zone-${index}`}>Karobari Zone</Label>
+                        <Select
+                          value={voter.karobariZoneId}
+                          onValueChange={(value) => updateVoter(index, 'karobariZoneId', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select Karobari zone" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {isLoadingZones ? (
+                              <SelectItem value="" disabled>
+                                Loading zones...
+                              </SelectItem>
+                            ) : (
+                              getFilteredZones('KAROBARI_MEMBERS', voter.age).map((zone) => (
+                                <SelectItem key={zone.id} value={zone.id}>
+                                  {zone.name} ({zone.nameGujarati})
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
 
                     {/* Trustee Zone */}
                     <div className="space-y-2">
@@ -591,6 +661,20 @@ export default function VoterUploadPage() {
                           )}
                         </SelectContent>
                       </Select>
+                    </div>
+
+                    {/* Active Status */}
+                    <div className="space-y-2 flex items-center">
+                      <input
+                        type="checkbox"
+                        id={`isActive-${index}`}
+                        checked={voter.isActive}
+                        onChange={(e) => updateVoter(index, 'isActive', e.target.checked)}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      <Label htmlFor={`isActive-${index}`} className="ml-2 cursor-pointer">
+                        Active Voter
+                      </Label>
                     </div>
                   </div>
                 </Card>

@@ -69,6 +69,7 @@ interface RegionTurnout {
   seats: number;
   totalVoters: number;
   totalVotes: number;
+  uniqueVoters?: number; // Number of unique voters who voted
   turnoutPercentage: number;
   actualVotes?: number;
   notaVotes?: number;
@@ -145,7 +146,7 @@ export default function VoterDashboard() {
       zoneVotingCompleted: 'Voting is already completed in this zone',
       zoneVotingCompletedGuj: 'આ વિભાગમાં મતદાન પહેલેથી પૂર્ણ થયું છે',
       totalRegions: 'Total Regions',
-      highestTurnout: 'Highest Vote Turnout',
+      highestTurnout: 'Highest Voter Turnout',
       averageTurnout: 'Average Turnout',
       totalVoters: 'Total Voters',
       failedToLoad: 'Failed to load election results'
@@ -245,7 +246,11 @@ export default function VoterDashboard() {
     if (!forceRefresh && cached) {
       try {
         const { data, timestamp } = JSON.parse(cached)
-        if (now - timestamp < 30000) { // 30 seconds cache
+        // Check if cached data has uniqueVoters field (new format)
+        const hasNewFormat = data?.trustee?.regions?.some((r: any) => r.uniqueVoters !== undefined) ||
+                             data?.yuvaPankh?.regions?.some((r: any) => r.uniqueVoters !== undefined)
+        // If cache is old or doesn't have new format, refresh
+        if (now - timestamp < 30000 && hasNewFormat) { // 30 seconds cache
           console.log('Using cached election results')
           setResults(data)
           return
@@ -780,6 +785,7 @@ export default function VoterDashboard() {
                         turnout: turnout,
                         votes: region.totalVotes || 0,
                         voters: region.totalVoters || 0,
+                        uniqueVoters: region.uniqueVoters !== undefined ? region.uniqueVoters : (region.totalVotes || 0),
                         zoneCode: region.zoneCode || '',
                         notaVotes: region.notaVotes || 0,
                         actualVotes: region.actualVotes || 0,
@@ -835,7 +841,7 @@ export default function VoterDashboard() {
                                 stroke="#666"
                               />
                               <YAxis 
-                                label={{ value: 'Vote Turnout %', angle: -90, position: 'insideLeft' }}
+                                label={{ value: 'Voter Turnout', angle: -90, position: 'insideLeft' }}
                                 fontSize={12}
                                 stroke="#666"
                                 domain={[0, 100]}
@@ -849,13 +855,19 @@ export default function VoterDashboard() {
                                     : (data.turnout > 0 
                                       ? (selectedLanguage === 'english' ? ' (In Progress)' : ' (પ્રગતિમાં)')
                                       : (selectedLanguage === 'english' ? ' (Pending)' : ' (બાકી)'));
-                                  return [`${value}%${status}`, name === 'turnout' ? 'Vote Turnout' : name];
+                                  return [`${value}%${status}`, name === 'turnout' ? 'Voter Turnout' : name];
                                 }}
                                 labelFormatter={(label, payload) => {
                                   if (payload && payload[0]) {
                                     const data = payload[0].payload;
-                                  const notaLabel = data.notaVotes ? ` • NOTA ${data.notaVotes}` : '';
-                                  return `${data.zoneCode}: ${data.votes} votes${notaLabel}`;
+                                    // Use uniqueVoters if available, otherwise calculate from turnout percentage
+                                    const uniqueVoters = data.uniqueVoters !== undefined 
+                                      ? data.uniqueVoters 
+                                      : Math.round((data.turnout / 100) * data.voters);
+                                    const voterText = uniqueVoters === 1 
+                                      ? (selectedLanguage === 'english' ? 'voter voted' : 'મતદાતાએ મતદાન કર્યું')
+                                      : (selectedLanguage === 'english' ? 'voters voted' : 'મતદાતાઓએ મતદાન કર્યું');
+                                    return `${data.zoneCode}: ${uniqueVoters} ${voterText}`;
                                   }
                                   return label;
                                 }}
@@ -964,6 +976,7 @@ export default function VoterDashboard() {
                               turnout: Number(region.turnoutPercentage) || 0,
                               votes: region.totalVotes || 0,
                               voters: region.totalVoters || 0,
+                              uniqueVoters: region.uniqueVoters !== undefined ? region.uniqueVoters : (region.totalVotes || 0),
                               zoneCode: region.zoneCode,
                               notaVotes: region.notaVotes || 0,
                               actualVotes: region.actualVotes || 0,
@@ -986,7 +999,7 @@ export default function VoterDashboard() {
                               stroke="#666"
                             />
                             <YAxis 
-                              label={{ value: 'Vote Turnout %', angle: -90, position: 'insideLeft' }}
+                              label={{ value: 'Voter Turnout', angle: -90, position: 'insideLeft' }}
                               fontSize={12}
                               stroke="#666"
                               domain={[0, 100]}
@@ -1000,13 +1013,19 @@ export default function VoterDashboard() {
                                   : (data.turnout > 0 
                                     ? (selectedLanguage === 'english' ? ' (In Progress)' : ' (પ્રગતિમાં)')
                                     : (selectedLanguage === 'english' ? ' (Pending)' : ' (બાકી)'));
-                                return [`${value}%${status}`, name === 'turnout' ? 'Vote Turnout' : name];
+                                return [`${value}%${status}`, name === 'turnout' ? 'Voter Turnout' : name];
                               }}
                               labelFormatter={(label, payload) => {
                                 if (payload && payload[0]) {
                                   const data = payload[0].payload;
-                                  const notaLabel = data.notaVotes ? ` • NOTA ${data.notaVotes}` : '';
-                                  return `${data.zoneCode}: ${data.votes} votes${notaLabel}`;
+                                  // Use uniqueVoters if available, otherwise calculate from turnout percentage
+                                  const uniqueVoters = data.uniqueVoters !== undefined 
+                                    ? data.uniqueVoters 
+                                    : Math.round((data.turnout / 100) * data.voters);
+                                  const voterText = uniqueVoters === 1 
+                                    ? (selectedLanguage === 'english' ? 'voter voted' : 'મતદાતાએ મતદાન કર્યું')
+                                    : (selectedLanguage === 'english' ? 'voters voted' : 'મતદાતાઓએ મતદાન કર્યું');
+                                  return `${data.zoneCode}: ${uniqueVoters} ${voterText}`;
                                 }
                                 return label;
                               }}
