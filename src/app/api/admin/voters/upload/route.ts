@@ -22,6 +22,28 @@ function calculateAge(dob: string): number {
     return age;
 }
 
+// Helper function to calculate age as of a specific date
+function calculateAgeAsOf(dob: string, referenceDate: Date): number {
+    const [day, month, year] = dob.split('/').map(Number);
+    const birthDate = new Date(year, month - 1, day);
+    let age = referenceDate.getFullYear() - birthDate.getFullYear();
+    const monthDiff = referenceDate.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && referenceDate.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    
+    return age;
+}
+
+// Helper function to check Yuva Pankh eligibility based on DOB
+// Eligible if 39 years old or younger as of August 31, 2025
+function isEligibleForYuvaPankh(dob: string): boolean {
+    const cutoffDate = new Date('2025-08-31');
+    const ageAsOfCutoff = calculateAgeAsOf(dob, cutoffDate);
+    return ageAsOfCutoff >= 18 && ageAsOfCutoff <= 39;
+}
+
 // Helper function to find appropriate zones for each election type based on region
 async function findZonesForRegion(region: string, age: number) {
     const zones: {
@@ -85,8 +107,10 @@ async function findZonesForRegion(region: string, age: number) {
 
     const mapping = (regionZoneMapping as any)[region] || regionZoneMapping['Mumbai']; // Default to Mumbai if region not found
 
-    // Find Yuva Pankh zone (only if age is between 18-40)
-    if (age >= 18 && age <= 40) {
+    // Find Yuva Pankh zone (only if eligible based on DOB - 39 or younger as of Aug 31, 2025)
+    // Note: This function receives age, but proper eligibility check requires DOB
+    // For now, use conservative age check (age <= 39), actual eligibility validated in POST handler
+    if (age <= 39) {
         const yuvaPankZone = await prisma.zone.findFirst({
             where: {
                 code: mapping.yuvaPank,
@@ -152,11 +176,12 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Validate Yuva Pankh zone eligibility based on age
+      // Validate Yuva Pankh zone eligibility based on DOB (must be 39 or younger as of Aug 31, 2025)
       if (voter.yuvaPankhZoneId) {
-        if (age < 18 || age > 39) {
+        if (!isEligibleForYuvaPankh(voter.dob)) {
+          const ageAsOfCutoff = calculateAgeAsOf(voter.dob, new Date('2025-08-31'));
           return NextResponse.json(
-            { error: `Voter ${voter.name} is not eligible for Yuva Pankh zone. Age must be between 18-39 years. Current age: ${age}` },
+            { error: `Voter ${voter.name} is not eligible for Yuva Pankh zone. Must be 39 years old or younger as of August 31, 2025. Age as of cutoff: ${ageAsOfCutoff}` },
             { status: 400 }
           );
         }

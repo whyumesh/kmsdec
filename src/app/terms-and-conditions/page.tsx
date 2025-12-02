@@ -55,7 +55,7 @@ export default function TermsAndConditionsPage() {
                 Voters must meet the age and membership requirements for each specific election:
               </p>
               <ul className="list-disc pl-6 space-y-2 mb-3">
-                <li><strong>Yuva Pankh Samiti:</strong> Voters aged 18-40 years as of the election date</li>
+                <li><strong>Yuva Pankh Samiti:</strong> Voters who are 39 years old or younger as of August 31, 2025</li>
                 <li><strong>Trust Mandal:</strong> Voters aged 18 years and above, with trustees requiring age 45+ as of August 31, 2025</li>
                 <li><strong>Karobari Samiti:</strong> As per specified eligibility criteria</li>
               </ul>

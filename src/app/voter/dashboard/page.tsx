@@ -118,7 +118,7 @@ export default function VoterDashboard() {
       zoneBasedVoting: 'Zone-based voting for each election type',
       regionalRepresentation: 'Regional representation rights',
       yuvaPankhNotAvailable: 'Yuva Pankh election is only available for voters from Karnataka & Goa or Raigad regions',
-      yuvaPankhNotAvailableAge: 'Yuva Pankh election is only available for voters aged 18-39 years',
+      yuvaPankhNotAvailableAge: 'Yuva Pankh election is only available for voters who are 39 years old or younger as of August 31, 2025',
       yourVotingProgress: 'Your Voting Progress',
       trackParticipation: 'Track your participation across all elections',
       electionsVoted: 'Elections Voted',
@@ -167,7 +167,7 @@ export default function VoterDashboard() {
       zoneBasedVoting: 'દરેક ચૂંટણી પ્રકાર માટે વિભાગ-આધારિત મતદાન',
       regionalRepresentation: 'પ્રાદેશિક પ્રતિનિધિત્વ અધિકારો',
       yuvaPankhNotAvailable: 'યુવા પાંખ ચૂંટણી ફક્ત કર્ણાટક અને ગોવા અથવા રાયગઢ પ્રદેશના મતદાતાઓ માટે ઉપલબ્ધ છે',
-      yuvaPankhNotAvailableAge: 'યુવા પાંખ ચૂંટણી ફક્ત 18-39 વર્ષની ઉંમરના મતદાતાઓ માટે ઉપલબ્ધ છે',
+      yuvaPankhNotAvailableAge: 'યુવા પાંખ ચૂંટણી ફક્ત 31 ઓગસ્ટ 2025 સુધી 39 વર્ષ અથવા તેનાથી ઓછી ઉંમરના મતદાતાઓ માટે ઉપલબ્ધ છે',
       yourVotingProgress: 'તમારી મતદાન પ્રગતિ',
       trackParticipation: 'બધી ચૂંટણીઓમાં તમારી ભાગીદારી ટ્રૅક કરો',
       electionsVoted: 'મત આપેલી ચૂંટણીઓ',
@@ -318,15 +318,50 @@ export default function VoterDashboard() {
     )
   }
 
+  // Helper function to calculate age as of a specific date
+  const calculateAgeAsOf = (dob: string | null | undefined, referenceDate: Date): number | null => {
+    if (!dob) return null
+    
+    try {
+      // Handle DD/MM/YYYY format
+      const parts = dob.split('/')
+      if (parts.length !== 3) return null
+      
+      const day = parseInt(parts[0], 10)
+      const month = parseInt(parts[1], 10) - 1 // JavaScript months are 0-indexed
+      const year = parseInt(parts[2], 10)
+      
+      if (isNaN(day) || isNaN(month) || isNaN(year)) return null
+      
+      const birthDate = new Date(year, month, day)
+      if (birthDate.getDate() !== day || birthDate.getMonth() !== month || birthDate.getFullYear() !== year) {
+        return null
+      }
+      
+      let age = referenceDate.getFullYear() - birthDate.getFullYear()
+      const monthDiff = referenceDate.getMonth() - birthDate.getMonth()
+      
+      if (monthDiff < 0 || (monthDiff === 0 && referenceDate.getDate() < birthDate.getDate())) {
+        age--
+      }
+      
+      return age
+    } catch {
+      return null
+    }
+  }
+
   // Determine why Yuva Pankh is not available (if applicable)
   const getYuvaPankhEligibilityReason = () => {
     if (voterData.yuvaPankZone) return null // Eligible
     
-    const age = voterData.age
+    const dob = voterData.dob
     const region = voterData.region?.trim() || ''
     
-    // Check age eligibility (18-40)
-    const isAgeEligible = age !== undefined && age >= 18 && age <= 40
+    // Check DOB eligibility (must be 39 or younger as of August 31, 2025)
+    const cutoffDate = new Date('2025-08-31')
+    const ageAsOfCutoff = dob ? calculateAgeAsOf(dob, cutoffDate) : null
+    const isAgeEligible = ageAsOfCutoff !== null && ageAsOfCutoff >= 18 && ageAsOfCutoff <= 39
     
     // Check region eligibility - Yuva Pankh is only for Karnataka & Goa or Raigad
     const allowedRegions = ['Karnataka & Goa', 'Karnataka-Goa', 'Raigad']
@@ -410,9 +445,12 @@ export default function VoterDashboard() {
     if (election.id === 'karobari-members') {
       return election.zone !== null // Include if voter has karobari zone
     }
-    // Yuva Pankh: 18-40 years (inclusive)
+    // Yuva Pankh: Must be 39 or younger as of August 31, 2025
     if (election.id === 'yuva-pank') {
-      return voterAge >= 18 && voterAge <= 40 && election.zone !== null
+      if (!voterData.dob) return false // Need DOB to check eligibility
+      const cutoffDate = new Date('2025-08-31')
+      const ageAsOfCutoff = calculateAgeAsOf(voterData.dob, cutoffDate)
+      return ageAsOfCutoff !== null && ageAsOfCutoff >= 18 && ageAsOfCutoff <= 39 && election.zone !== null
     }
     // Trustee: 18+ years
     if (election.id === 'trustees') {

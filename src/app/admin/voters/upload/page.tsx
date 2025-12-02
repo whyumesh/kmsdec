@@ -119,19 +119,42 @@ export default function VoterUploadPage() {
     return birthDate.getDate() === day && birthDate.getMonth() === month - 1 && birthDate.getFullYear() === year
   }
 
-  // Helper function to check if age is eligible for Yuva Pankh (18-39 inclusive before 31-Aug-2025)
-  const isEligibleForYuvaPankh = (age: number | null | undefined): boolean => {
-    if (!age) return false
+  // Helper function to calculate age as of a specific date from DOB
+  const calculateAgeAsOf = (dob: string, referenceDate: Date): number | null => {
+    if (!dob) return null
     
-    // Check if age is between 18-39 inclusive
-    // For Yuva Pankh, the age should be 18-39 as of August 31, 2025
+    const parts = dob.split('/')
+    if (parts.length !== 3) return null
+    
+    const day = parseInt(parts[0], 10)
+    const month = parseInt(parts[1], 10) - 1 // JavaScript months are 0-indexed
+    const year = parseInt(parts[2], 10)
+    
+    if (isNaN(day) || isNaN(month) || isNaN(year)) return null
+    
+    const birthDate = new Date(year, month, day)
+    if (birthDate.getDate() !== day || birthDate.getMonth() !== month || birthDate.getFullYear() !== year) {
+      return null
+    }
+    
+    let age = referenceDate.getFullYear() - birthDate.getFullYear()
+    const monthDiff = referenceDate.getMonth() - birthDate.getMonth()
+    
+    if (monthDiff < 0 || (monthDiff === 0 && referenceDate.getDate() < birthDate.getDate())) {
+      age--
+    }
+    
+    return age
+  }
+
+  // Helper function to check if eligible for Yuva Pankh based on DOB (must be 39 or younger as of Aug 31, 2025)
+  const isEligibleForYuvaPankh = (dob: string | null | undefined): boolean => {
+    if (!dob) return false
+    
     const cutoffDate = new Date('2025-08-31')
-    const today = new Date()
+    const ageAsOfCutoff = calculateAgeAsOf(dob, cutoffDate)
     
-    // If we're past the cutoff date, no one is eligible for Yuva Pankh
-    if (today > cutoffDate) return false
-    
-    return age >= 18 && age <= 39
+    return ageAsOfCutoff !== null && ageAsOfCutoff >= 18 && ageAsOfCutoff <= 39
   }
 
   // Helper function to get zones by election type
@@ -239,8 +262,13 @@ export default function VoterUploadPage() {
         const age = calculateAgeFromDOB(dobValue)
         updatedVoters[index].age = age || undefined
         
-        // If age is calculated and not eligible for Yuva Pankh (not between 18-39), reset Yuva Pankh zone
-        if (age && (age < 18 || age > 39)) {
+        // Check Yuva Pankh eligibility based on DOB (must be 39 or younger as of Aug 31, 2025)
+        if (dobValue && isCompleteDate(dobValue)) {
+          if (!isEligibleForYuvaPankh(dobValue)) {
+            updatedVoters[index].yuvaPankhZoneId = ''
+          }
+        } else if (age && (age < 18 || age > 39)) {
+          // Fallback: if DOB is not available, use age check (conservative)
           updatedVoters[index].yuvaPankhZoneId = ''
         }
       } else {
@@ -595,15 +623,20 @@ export default function VoterUploadPage() {
                       </div>
                     )}
 
-                    {/* Show message when Yuva Pankh is not available due to age */}
-                    {voter.age !== undefined && (voter.age < 18 || voter.age > 39) && (
+                    {/* Show message when Yuva Pankh is not available due to age/DOB */}
+                    {voter.dob && isCompleteDate(voter.dob) && !isEligibleForYuvaPankh(voter.dob) && (
                       <div className="space-y-2">
                         <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
                           <p className="text-sm text-gray-600">
-                            {voter.age < 18 
-                              ? "Yuva Pankh zones are not available for voters under 18 years"
-                              : "Yuva Pankh zones are not available for voters above 39 years"
-                            }
+                            {(() => {
+                              const cutoffDate = new Date('2025-08-31')
+                              const ageAsOfCutoff = calculateAgeAsOf(voter.dob, cutoffDate)
+                              if (ageAsOfCutoff !== null && ageAsOfCutoff < 18) {
+                                return "Yuva Pankh zones are not available for voters under 18 years"
+                              } else {
+                                return "Yuva Pankh zones are not available. Must be 39 years old or younger as of August 31, 2025"
+                              }
+                            })()}
                           </p>
                         </div>
                       </div>
