@@ -1,4 +1,25 @@
 import { PrismaClient } from '@prisma/client'
+import * as fs from 'fs'
+
+// Load environment variables from .env.local
+function loadEnvFile(filePath: string) {
+  if (fs.existsSync(filePath)) {
+    const content = fs.readFileSync(filePath, 'utf-8')
+    content.split('\n').forEach(line => {
+      const trimmed = line.trim()
+      if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+        const [key, ...valueParts] = trimmed.split('=')
+        const value = valueParts.join('=').trim().replace(/^["']|["']$/g, '')
+        if (!process.env[key.trim()]) {
+          process.env[key.trim()] = value
+        }
+      }
+    })
+  }
+}
+
+loadEnvFile('.env.local')
+loadEnvFile('.env')
 
 const prisma = new PrismaClient()
 

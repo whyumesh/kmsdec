@@ -41,6 +41,27 @@ export async function GET(request: NextRequest) {
                         nameGujarati: true,
                         code: true
                     }
+                },
+                yuvaPankZone: {
+                    select: {
+                        name: true,
+                        nameGujarati: true,
+                        code: true
+                    }
+                },
+                karobariZone: {
+                    select: {
+                        name: true,
+                        nameGujarati: true,
+                        code: true
+                    }
+                },
+                trusteeZone: {
+                    select: {
+                        name: true,
+                        nameGujarati: true,
+                        code: true
+                    }
                 }
             }
         });
@@ -85,6 +106,21 @@ export async function GET(request: NextRequest) {
                 name: voter.zone.name,
                 nameGujarati: voter.zone.nameGujarati,
                 code: voter.zone.code
+            } : null,
+            yuvaPankZone: voter.yuvaPankZone ? {
+                name: voter.yuvaPankZone.name,
+                nameGujarati: voter.yuvaPankZone.nameGujarati,
+                code: voter.yuvaPankZone.code
+            } : null,
+            karobariZone: voter.karobariZone ? {
+                name: voter.karobariZone.name,
+                nameGujarati: voter.karobariZone.nameGujarati,
+                code: voter.karobariZone.code
+            } : null,
+            trusteeZone: voter.trusteeZone ? {
+                name: voter.trusteeZone.name,
+                nameGujarati: voter.trusteeZone.nameGujarati,
+                code: voter.trusteeZone.code
             } : null,
             createdAt: voter.createdAt.toISOString(),
         }));

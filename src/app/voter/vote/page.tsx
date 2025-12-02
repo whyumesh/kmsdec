@@ -691,7 +691,8 @@ export default function UnifiedVotingPage() {
                 <Logo size="sm" />
                 <div>
                   <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMS ELECTION 2026</h1>
-                  <p className="text-xs sm:text-sm text-gray-600">Unified Voting System</p>
+                  <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
+                  <p className="text-xs sm:text-sm text-gray-600 mt-1">Unified Voting System</p>
                 </div>
               </div>
               <div className="flex items-center space-x-2">

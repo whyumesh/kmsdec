@@ -33,8 +33,15 @@ import Logo from "@/components/Logo";
 import toast, { Toaster } from "react-hot-toast";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 
+interface Zone {
+    name: string;
+    nameGujarati: string;
+    code: string;
+}
+
 interface Voter {
     id: string;
+    voterId: string;
     name: string;
     gender?: string;
     dob?: string;
@@ -45,6 +52,10 @@ interface Voter {
     regionKarobari?: string;
     regionYuvaPankh?: string;
     regionTrustee?: string;
+    zone?: Zone | null;
+    yuvaPankZone?: Zone | null;
+    karobariZone?: Zone | null;
+    trusteeZone?: Zone | null;
     isActive: boolean;
     hasVoted: boolean;
     createdAt: string;
@@ -145,7 +156,8 @@ export default function VoterManagementPage() {
             filtered = filtered.filter(
                 (voter) =>
                     voter.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    voter.phone.includes(searchTerm)
+                    voter.phone.includes(searchTerm) ||
+                    voter.voterId.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
@@ -494,7 +506,7 @@ export default function VoterManagementPage() {
                             <div className="relative">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                                 <Input
-                                    placeholder="Search by name or phone number..."
+                                    placeholder="Search by name, VID Number, or phone number..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="pl-10"
@@ -533,6 +545,7 @@ export default function VoterManagementPage() {
                                     <thead>
                                         <tr className="border-b bg-gray-50">
                                             <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-700">Sl No.</th>
+                                            <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-700">VID Number</th>
                                             <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-700">Name</th>
                                             <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-700 hidden md:table-cell">Gender</th>
                                             <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-700 hidden lg:table-cell">DOB</th>
@@ -540,8 +553,9 @@ export default function VoterManagementPage() {
                                             <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-700 hidden lg:table-cell">Email</th>
                                             <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-700 hidden md:table-cell">City</th>
                                             <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-700">Mobile</th>
-                                            <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-700 hidden lg:table-cell">Region (YP)</th>
-                                            <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-700 hidden lg:table-cell">Region (T)</th>
+                                            <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-700 hidden lg:table-cell">Yuva Pank Zone</th>
+                                            <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-700 hidden lg:table-cell">Karobari Zone</th>
+                                            <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-700 hidden lg:table-cell">Trustee Zone</th>
                                             <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-700">Status</th>
                                             <th className="text-left p-2 sm:p-3 text-xs sm:text-sm font-medium text-gray-700">Actions</th>
                                         </tr>
@@ -550,6 +564,9 @@ export default function VoterManagementPage() {
                                         {filteredVoters.map((voter, index) => (
                                             <tr key={voter.id} className="border-b hover:bg-gray-50">
                                                 <td className="p-2 sm:p-3 text-xs sm:text-sm text-gray-600">{index + 1}</td>
+                                                <td className="p-2 sm:p-3 text-xs sm:text-sm text-gray-900 font-mono font-semibold">
+                                                    {voter.voterId || '-'}
+                                                </td>
                                                 <td className="p-2 sm:p-3">
                                                     <div className="font-medium text-xs sm:text-sm text-gray-900 break-words">{voter.name}</div>
                                                 </td>
@@ -572,15 +589,28 @@ export default function VoterManagementPage() {
                                                     {voter.phone}
                                                 </td>
                                                 <td className="p-2 sm:p-3 hidden lg:table-cell">
-                                                    {voter.regionYuvaPankh ? (
-                                                        getRegionBadge(voter.regionYuvaPankh)
+                                                    {voter.yuvaPankZone ? (
+                                                        <Badge className="bg-green-100 text-green-800">
+                                                            {voter.yuvaPankZone.name}
+                                                        </Badge>
                                                     ) : (
                                                         <span className="text-gray-400">-</span>
                                                     )}
                                                 </td>
                                                 <td className="p-2 sm:p-3 hidden lg:table-cell">
-                                                    {voter.regionTrustee ? (
-                                                        getRegionBadge(voter.regionTrustee)
+                                                    {voter.karobariZone ? (
+                                                        <Badge className="bg-blue-100 text-blue-800">
+                                                            {voter.karobariZone.name}
+                                                        </Badge>
+                                                    ) : (
+                                                        <span className="text-gray-400">-</span>
+                                                    )}
+                                                </td>
+                                                <td className="p-2 sm:p-3 hidden lg:table-cell">
+                                                    {voter.trusteeZone ? (
+                                                        <Badge className="bg-purple-100 text-purple-800">
+                                                            {voter.trusteeZone.name}
+                                                        </Badge>
                                                     ) : (
                                                         <span className="text-gray-400">-</span>
                                                     )}

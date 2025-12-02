@@ -833,10 +833,14 @@ export default function KarobariNominatePage() {
             </p>
             <p className="mt-2">
               Designed & Developed by{" "}
-              <span className="text-blue-400 font-semibold">
-                Parth Gagdani
-              </span>
-              , Team FullStack (Thane)
+              <Link 
+                href="https://www.teamfullstack.in" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:text-blue-300 hover:underline transition-colors font-semibold"
+              >
+                Parth Gagdani, Team FullStack (Thane)
+              </Link>
             </p>
           </div>
         </div>

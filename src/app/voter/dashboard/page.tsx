@@ -145,7 +145,7 @@ export default function VoterDashboard() {
       zoneVotingCompleted: 'Voting is already completed in this zone',
       zoneVotingCompletedGuj: 'આ વિભાગમાં મતદાન પહેલેથી પૂર્ણ થયું છે',
       totalRegions: 'Total Regions',
-      highestTurnout: 'Highest Turnout',
+      highestTurnout: 'Highest Vote Turnout',
       averageTurnout: 'Average Turnout',
       totalVoters: 'Total Voters',
       failedToLoad: 'Failed to load election results'
@@ -434,6 +434,7 @@ export default function VoterDashboard() {
               <Logo size="sm" />
               <div>
                 <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMS ELECTION 2026</h1>
+                <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
@@ -521,16 +522,13 @@ export default function VoterDashboard() {
                 </div>
               )}
             </div>
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                <span>• {content[selectedLanguage].eligibleFor} {elections.length} {elections.length !== 1 ? content[selectedLanguage].elections : content[selectedLanguage].election}</span>
-                <span>• {content[selectedLanguage].zoneBasedVoting}</span>
-                <span>• {content[selectedLanguage].regionalRepresentation}</span>
-                {!voterData.yuvaPankZone && (
+            {!voterData.yuvaPankZone && (
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                   <span>• {content[selectedLanguage].yuvaPankhNotAvailable}</span>
-                )}
+                </div>
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
@@ -832,7 +830,7 @@ export default function VoterDashboard() {
                                 stroke="#666"
                               />
                               <YAxis 
-                                label={{ value: 'Turnout %', angle: -90, position: 'insideLeft' }}
+                                label={{ value: 'Vote Turnout %', angle: -90, position: 'insideLeft' }}
                                 fontSize={12}
                                 stroke="#666"
                                 domain={[0, 100]}
@@ -846,13 +844,13 @@ export default function VoterDashboard() {
                                     : (data.turnout > 0 
                                       ? (selectedLanguage === 'english' ? ' (In Progress)' : ' (પ્રગતિમાં)')
                                       : (selectedLanguage === 'english' ? ' (Pending)' : ' (બાકી)'));
-                                  return [`${value}%${status}`, name === 'turnout' ? 'Turnout' : name];
+                                  return [`${value}%${status}`, name === 'turnout' ? 'Vote Turnout' : name];
                                 }}
                                 labelFormatter={(label, payload) => {
                                   if (payload && payload[0]) {
                                     const data = payload[0].payload;
                                   const notaLabel = data.notaVotes ? ` • NOTA ${data.notaVotes}` : '';
-                                  return `${data.zoneCode}: ${data.votes}/${data.voters} voters${notaLabel}`;
+                                  return `${data.zoneCode}: ${data.votes} votes${notaLabel}`;
                                   }
                                   return label;
                                 }}
@@ -983,7 +981,7 @@ export default function VoterDashboard() {
                               stroke="#666"
                             />
                             <YAxis 
-                              label={{ value: 'Turnout %', angle: -90, position: 'insideLeft' }}
+                              label={{ value: 'Vote Turnout %', angle: -90, position: 'insideLeft' }}
                               fontSize={12}
                               stroke="#666"
                               domain={[0, 100]}
@@ -997,13 +995,13 @@ export default function VoterDashboard() {
                                   : (data.turnout > 0 
                                     ? (selectedLanguage === 'english' ? ' (In Progress)' : ' (પ્રગતિમાં)')
                                     : (selectedLanguage === 'english' ? ' (Pending)' : ' (બાકી)'));
-                                return [`${value}%${status}`, name === 'turnout' ? 'Turnout' : name];
+                                return [`${value}%${status}`, name === 'turnout' ? 'Vote Turnout' : name];
                               }}
                               labelFormatter={(label, payload) => {
                                 if (payload && payload[0]) {
                                   const data = payload[0].payload;
                                   const notaLabel = data.notaVotes ? ` • NOTA ${data.notaVotes}` : '';
-                                  return `${data.zoneCode}: ${data.votes}/${data.voters} voters${notaLabel}`;
+                                  return `${data.zoneCode}: ${data.votes} votes${notaLabel}`;
                                 }
                                 return label;
                               }}

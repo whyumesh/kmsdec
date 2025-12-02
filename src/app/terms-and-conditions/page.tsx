@@ -18,6 +18,7 @@ export default function TermsAndConditionsPage() {
                 <h1 className="text-lg sm:text-2xl font-bold text-gray-900">
                   KMS ELECTION 2026
                 </h1>
+                <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
               </div>
             </div>
             <Link href="/">
@@ -150,10 +151,14 @@ export default function TermsAndConditionsPage() {
             </p>
             <p className="mt-2">
               Designed & Developed by{" "}
-              <span className="text-blue-400 font-semibold">
-                Parth Gagdani
-              </span>
-              , Team FullStack (Thane)
+              <Link 
+                href="https://www.teamfullstack.in" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:text-blue-300 hover:underline transition-colors font-semibold"
+              >
+                Parth Gagdani, Team FullStack (Thane)
+              </Link>
             </p>
           </div>
         </div>
