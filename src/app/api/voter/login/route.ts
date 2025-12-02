@@ -16,20 +16,40 @@ async function handler(request: NextRequest) {
     
     const { phone, otp, location } = await request.json()
 
+    console.log('Login request received:', { 
+      phone: phone ? '***' : 'missing', 
+      otp: otp ? '***' : 'missing', 
+      location: location ? 'present' : 'missing' 
+    })
+
     if (!phone || !otp || !location) {
       throw new ValidationError('Phone, OTP, and location are required')
     }
 
     const normalizedPhone = normalizePhone(phone)
+    console.log('Normalized phone:', normalizedPhone)
 
     // Verify OTP - look for recently used OTP
+    // Since verify-otp marks it as used, we just need to check it's used and not expired
+    const now = new Date()
+    // Give a 2-minute grace period after expiration for login completion
+    const gracePeriod = new Date(now.getTime() - 2 * 60 * 1000)
+    
+    console.log('Checking OTP:', { 
+      normalizedPhone, 
+      otp: otp ? '***' : 'missing',
+      now: now.toISOString(),
+      gracePeriod: gracePeriod.toISOString()
+    })
+    
+    // Look for OTP that was verified (marked as used) and hasn't expired (with grace period)
     const otpRecord = await prisma.oTP.findFirst({
       where: {
         phone: normalizedPhone,
         code: otp,
         isUsed: true,
         expiresAt: {
-          gt: new Date(Date.now() - 5 * 60 * 1000) // 5 minutes grace period
+          gt: gracePeriod // Allow 2 minutes after expiration for login
         }
       },
       orderBy: {
@@ -37,7 +57,30 @@ async function handler(request: NextRequest) {
       }
     })
 
+    console.log('OTP lookup result:', { 
+      found: !!otpRecord,
+      otpRecord: otpRecord ? { 
+        id: otpRecord.id, 
+        createdAt: otpRecord.createdAt.toISOString(),
+        expiresAt: otpRecord.expiresAt.toISOString(),
+        isUsed: otpRecord.isUsed
+      } : null
+    })
+
     if (!otpRecord) {
+      // Check if there are any OTPs for this phone to help debug
+      const allOtps = await prisma.oTP.findMany({
+        where: { phone: normalizedPhone },
+        orderBy: { createdAt: 'desc' },
+        take: 5
+      })
+      console.log('Recent OTPs for this phone:', allOtps.map(otp => ({
+        code: otp.code,
+        isUsed: otp.isUsed,
+        createdAt: otp.createdAt.toISOString(),
+        expiresAt: otp.expiresAt.toISOString()
+      })))
+      
       throw new AuthenticationError('Invalid or expired OTP. Please verify OTP first.')
     }
 
@@ -63,12 +106,14 @@ async function handler(request: NextRequest) {
     })
 
     // Create session
+    console.log('Creating session for voter:', { id: voter.id, voterId: voter.voterId, phone: voter.phone })
     const token = sessionManager.createSession({
       userId: voter.id, // Use voter.id as userId for session
       voterId: voter.voterId,
       phone: voter.phone,
       role: 'VOTER'
     })
+    console.log('Session token created:', token ? `${token.substring(0, 20)}...` : 'null')
 
     // Log successful authentication
     logAuth(voter.id, 'voter_login', true, { voterId: voter.voterId, phone })
@@ -89,7 +134,16 @@ async function handler(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 24 * 60 * 60 // 24 hours
+      maxAge: 24 * 60 * 60, // 24 hours
+      path: '/' // Ensure cookie is available for all paths
+    })
+    
+    console.log('Cookie set in response:', {
+      name: 'voter-token',
+      hasToken: !!token,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
     })
 
     return response

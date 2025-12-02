@@ -18,6 +18,7 @@ const publicRoutes = [
   '/voter/login',
   '/api/voter/send-otp',
   '/api/voter/verify-otp',
+  '/api/voter/login',
   '/elections',
   '/landing'
 ]

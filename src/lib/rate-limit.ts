@@ -1,5 +1,5 @@
 import { logger } from './logger'
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 // Rate limiting configuration
 interface RateLimitConfig {
@@ -249,16 +249,15 @@ export function createRateLimitedRoute(
         resetTime: status.resetTime
       })
       
-      return new Response(
-        JSON.stringify({ 
+      return NextResponse.json(
+        { 
           error: 'Too many requests', 
           message: 'Please try again later',
-          resetTime: status.resetTime
-        }),
+          resetTime: status.resetTime.toISOString()
+        },
         { 
           status: 429,
           headers: {
-            'Content-Type': 'application/json',
             'Retry-After': Math.ceil((status.resetTime.getTime() - Date.now()) / 1000).toString()
           }
         }

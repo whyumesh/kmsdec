@@ -64,24 +64,70 @@ export default function VoterLoginPage() {
     }
 
     try {
+      console.log('Sending OTP request for phone:', phone)
+      
       const response = await fetch('/api/voter/send-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Important: include cookies
         body: JSON.stringify({ phone }),
       })
 
-      const data = await response.json()
+      console.log('Send OTP response status:', response.status)
+      console.log('Send OTP response headers:', Object.fromEntries(response.headers.entries()))
+      
+      // Check if response has content
+      const contentType = response.headers.get('content-type')
+      console.log('Response content-type:', contentType)
+      
+      // Read response as text first, then parse as JSON
+      const responseText = await response.text()
+      console.log('Response text length:', responseText.length)
+      console.log('Response text (first 500 chars):', responseText.substring(0, 500))
+      
+      let data
+      try {
+        if (!responseText || responseText.trim() === '') {
+          throw new Error('Empty response from server')
+        }
+        data = JSON.parse(responseText)
+        console.log('Send OTP response data:', data)
+      } catch (jsonError) {
+        console.error('Failed to parse JSON response:', jsonError)
+        console.error('Response text:', responseText)
+        setError(`Server error: ${responseText || 'Empty response'}. Please check server logs.`)
+        setIsLoading(false)
+        return
+      }
 
       if (response.ok) {
         setSuccessMessage(data.message || 'OTP has been sent to your phone number')
         setStep('otp')
       } else {
-        setError(data.error || 'Failed to send OTP')
+        // Show the actual error message from the API
+        let errorMessage = data.error || data.message || 'Failed to send OTP'
+        
+        // Handle rate limiting specifically
+        if (response.status === 429) {
+          errorMessage = data.message || 'Too many requests. Please wait a few minutes and try again.'
+        }
+        
+        console.error('Send OTP failed:', {
+          status: response.status,
+          error: errorMessage,
+          data: data
+        })
+        setError(errorMessage)
       }
     } catch (error) {
-      setError('An error occurred. Please try again.')
+      console.error('Send OTP network error:', error)
+      if (error instanceof Error) {
+        setError(`Network error: ${error.message}. Please check your connection and try again.`)
+      } else {
+        setError('An error occurred. Please try again.')
+      }
     } finally {
       setIsLoading(false)
     }
@@ -92,25 +138,45 @@ export default function VoterLoginPage() {
     setError('')
 
     try {
+      console.log('Verifying OTP...', { phone, otp: otp ? '***' : 'missing' })
+      
       const response = await fetch('/api/voter/verify-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Important: include cookies
         body: JSON.stringify({ phone, otp }),
       })
 
-      const data = await response.json()
+      console.log('Verify OTP response status:', response.status)
+      
+      // Read response as text first, then parse as JSON
+      const responseText = await response.text()
+      let data
+      try {
+        data = JSON.parse(responseText)
+        console.log('Verify OTP response data:', data)
+      } catch (jsonError) {
+        console.error('Failed to parse JSON response:', jsonError)
+        console.error('Response text:', responseText)
+        setError('Invalid response from server. Please try again.')
+        setIsLoading(false)
+        return
+      }
 
       if (response.ok) {
-        // Proceed directly to login completion
-        completeLogin()
+        // Proceed directly to login completion - await it to ensure it completes
+        await completeLogin()
       } else {
-        setError(data.error || 'Invalid OTP')
+        const errorMessage = data.error || data.message || 'Invalid OTP'
+        console.error('Verify OTP failed:', errorMessage)
+        setError(errorMessage)
+        setIsLoading(false)
       }
     } catch (error) {
+      console.error('Verify OTP error:', error)
       setError('An error occurred. Please try again.')
-    } finally {
       setIsLoading(false)
     }
   }
@@ -123,11 +189,14 @@ export default function VoterLoginPage() {
       // Use location if available, otherwise use default
       const locationData = location || { lat: 19.0760, lng: 72.8777 } // Mumbai default
       
+      console.log('Attempting voter login...', { phone, otp: otp ? '***' : 'missing', location: locationData })
+      
       const response = await fetch('/api/voter/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Important: include cookies
         body: JSON.stringify({ 
           phone, 
           otp, 
@@ -138,12 +207,35 @@ export default function VoterLoginPage() {
         }),
       })
 
-      const data = await response.json()
+      console.log('Login response status:', response.status)
+      
+      // Read response as text first, then parse as JSON
+      const responseText = await response.text()
+      let data
+      try {
+        data = JSON.parse(responseText)
+        console.log('Login response data:', data)
+      } catch (jsonError) {
+        console.error('Failed to parse JSON response:', jsonError)
+        console.error('Response text:', responseText)
+        setError('Invalid response from server. Please try again.')
+        setIsLoading(false)
+        return
+      }
 
       if (response.ok) {
-        router.push('/voter/dashboard')
+        console.log('Login successful, redirecting to dashboard...')
+        console.log('Response cookies:', document.cookie)
+        
+        // Small delay to ensure cookie is set before redirect
+        setTimeout(() => {
+          router.push('/voter/dashboard')
+        }, 100)
       } else {
-        setError(data.error || 'Login failed')
+        const errorMessage = data.error || data.message || 'Login failed'
+        console.error('Login failed:', errorMessage, data)
+        setError(errorMessage)
+        setIsLoading(false)
       }
     } catch (error) {
       console.error('Login error:', error)
@@ -152,7 +244,6 @@ export default function VoterLoginPage() {
       } else {
         setError('An error occurred. Please try again.')
       }
-    } finally {
       setIsLoading(false)
     }
   }

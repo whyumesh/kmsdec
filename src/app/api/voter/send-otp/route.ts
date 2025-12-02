@@ -14,18 +14,41 @@ async function handler(request: NextRequest) {
   try {
     logRequest(request, 'OTP send attempt')
     
-    const { phone } = await request.json()
+    console.log('=== Send OTP Handler Started ===')
+    console.log('Request method:', request.method)
+    console.log('Request URL:', request.url)
+    
+    let requestBody
+    try {
+      requestBody = await request.json()
+      console.log('Request body parsed:', { phone: requestBody.phone ? '***' : 'missing' })
+    } catch (parseError) {
+      console.error('Failed to parse request body:', parseError)
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+    }
+    
+    const { phone } = requestBody
+
+    console.log('Send OTP request received:', { phone: phone ? '***' : 'missing' })
 
     if (!phone) {
       return NextResponse.json({ error: 'Phone number is required' }, { status: 400 })
     }
 
     const normalizedPhone = normalizePhone(phone)
+    console.log('Normalized phone:', normalizedPhone)
     const phoneFilters = buildPhoneWhereFilters(phone)
+    console.log('Phone filters:', phoneFilters.length)
 
     // Check if voter exists in the voter list (match different formats)
     const voter = await prisma.voter.findFirst({
       where: phoneFilters.length ? { OR: phoneFilters } : { phone }
+    })
+
+    console.log('Voter lookup result:', { 
+      found: !!voter, 
+      voterId: voter?.voterId,
+      isActive: voter?.isActive 
     })
 
     if (!voter) {
@@ -62,14 +85,32 @@ async function handler(request: NextRequest) {
     }
 
     // Return success response without exposing OTP
-    return NextResponse.json({ 
+    const successResponse = NextResponse.json({ 
       message: smsResult.message || 'OTP has been sent to your registered phone number.',
       success: true
     })
+    
+    console.log('=== Send OTP Handler Success ===')
+    console.log('Response status:', 200)
+    return successResponse
 
   } catch (error) {
+    console.error('=== Send OTP Handler Error ===')
     console.error('Error sending OTP:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.error('Error details:', { 
+      message: errorMessage,
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : 'Unknown'
+    })
+    
+    const errorResponse = NextResponse.json({ 
+      error: error instanceof Error ? `Internal server error: ${errorMessage}` : 'Internal server error',
+      details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined) : undefined
+    }, { status: 500 })
+    
+    console.log('=== Send OTP Handler Error Response ===')
+    return errorResponse
   }
 }
 
