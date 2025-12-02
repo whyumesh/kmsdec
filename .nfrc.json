@@ -3,14 +3,22 @@
   "functions": {
     "node_bundler": "esbuild",
     "external_node_modules": [
-      "@prisma/client",
-      "prisma",
       "pg",
       "bcryptjs",
       "jsonwebtoken",
       "nodemailer",
       "@aws-sdk/client-s3",
-      "@aws-sdk/s3-request-presigner"
+      "@aws-sdk/s3-request-presigner",
+      "cloudinary",
+      "pdf-parse",
+      "exceljs",
+      "jspdf",
+      "jsdom",
+      "isomorphic-dompurify",
+      "twilio",
+      "csv-parser",
+      "@upstash/ratelimit",
+      "@upstash/redis"
     ]
   }
 }

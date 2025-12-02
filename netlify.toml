@@ -24,7 +24,8 @@
 # large dependencies from being included in the function bundle
 [functions]
   node_bundler = "esbuild"
-  # Don't include unnecessary files in function bundle
+  # Exclude all files - let Netlify handle dependencies at runtime
+  # This prevents large files from being bundled into the function
   included_files = []
 
 # Required environment variables (set these in Netlify dashboard under Site settings → Environment variables)

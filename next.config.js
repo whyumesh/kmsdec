@@ -53,7 +53,11 @@ const nextConfig = {
       '@aws-sdk/s3-request-presigner',
       'cloudinary',
       'isomorphic-dompurify',
-      'jsdom'
+      'jsdom',
+      'twilio',
+      '@upstash/ratelimit',
+      '@upstash/redis',
+      'pdf-parse'
     ],
   },
   // Configure middleware to avoid Edge Function issues
@@ -82,9 +86,19 @@ const nextConfig = {
         'jspdf',
         'jsdom',
         'isomorphic-dompurify',
+        'twilio',
+        'csv-parser',
+        '@upstash/ratelimit',
+        '@upstash/redis',
       ]
       // Add as external dependencies
       config.externals.push(...largeDependencies)
+      
+      // Also externalize by pattern for better coverage
+      config.externals.push({
+        '@aws-sdk': 'commonjs @aws-sdk',
+        'canvas': 'commonjs canvas',
+      })
     }
     
     if (!dev && !isServer) {
