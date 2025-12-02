@@ -95,9 +95,9 @@ async function handler(request: NextRequest) {
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
 
     // Determine OTP delivery method
-    // Priority: 1) If email provided in request, use email 2) If voter has email, use email 3) Otherwise use SMS
-    const useEmail = email || (voter.email && voter.email.trim() !== '')
-    const targetEmail = email || voter.email
+    // If email is provided in request, use email; otherwise use SMS (phone)
+    const useEmail = !!email
+    const targetEmail = email || null
     
     // Store OTP identifier (phone for SMS, email for email OTPs)
     // Note: OTP table uses 'phone' field but we can store email there for email-based OTPs
@@ -130,6 +130,7 @@ async function handler(request: NextRequest) {
           error: 'Phone number is required for SMS delivery' 
         }, { status: 400 })
       }
+      console.log('Sending OTP via SMS:', smsTarget ? '***' : 'missing')
       result = await sendOTP(smsTarget, otpCode)
       message = result.message || 'OTP has been sent to your registered phone number.'
     }
@@ -145,7 +146,7 @@ async function handler(request: NextRequest) {
     const successResponse = NextResponse.json({ 
       message: message,
       success: true,
-      method: hasEmail ? 'email' : 'sms'
+      method: useEmail ? 'email' : 'sms'
     })
     
     console.log('=== Send OTP Handler Success ===')
