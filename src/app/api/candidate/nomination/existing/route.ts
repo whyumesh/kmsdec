@@ -3,6 +3,10 @@ import { prisma } from "@/lib/db";
 import { verifyToken } from "@/lib/jwt";
 import { handleError } from "@/lib/error-handler";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function GET(request: NextRequest) {
     try {
         const token = request.cookies.get("candidate-token")?.value;
