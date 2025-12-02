@@ -3,6 +3,11 @@ import { prisma } from '@/lib/db'
 import { verifyToken } from '@/lib/jwt'
 import { handleError } from '@/lib/error-handler'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+
 // Remove latest trustee vote (no auth required for admin use)
 export async function DELETE(request: NextRequest) {
   try {

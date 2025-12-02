@@ -3,6 +3,11 @@ import { isStorjConfigured, storjClient } from '@/lib/storj';
 import { ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { prisma } from '@/lib/db';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+
 /**
  * Utility endpoint to verify Storj documents after account reactivation
  * Lists all files in Storj bucket and cross-references with database

@@ -7,6 +7,11 @@ import { candidateNominationSchema, sanitizeInput } from "@/lib/validation";
 import { createRateLimitedRoute, rateLimitConfigs } from "@/lib/rate-limit";
 import { withCSRFProtection } from "@/lib/csrf";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+
 async function handler(request: NextRequest) {
     try {
         const token = request.cookies.get("candidate-token")?.value;

@@ -6,6 +6,10 @@ import { createRateLimitedRoute, rateLimitConfigs } from '@/lib/rate-limit'
 import { logRequest } from '@/lib/logger'
 import { buildPhoneWhereFilters, normalizePhone } from '@/lib/phone'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function handler(request: NextRequest) {
   try {
     logRequest(request, 'OTP send attempt')

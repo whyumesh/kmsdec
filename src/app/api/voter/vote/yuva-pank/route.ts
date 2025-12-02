@@ -5,6 +5,11 @@ import { verifyToken } from '@/lib/jwt'
 import { handleError } from '@/lib/error-handler'
 import { getOrCreateYuvaNotaCandidate } from '@/lib/nota'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+
 export async function POST(request: NextRequest) {
   try {
     const { votes } = await request.json()

@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { handleError } from "@/lib/error-handler";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+
 // Helper function to calculate age from DOB
 function calculateAge(dob: string): number {
     const [day, month, year] = dob.split('/').map(Number);

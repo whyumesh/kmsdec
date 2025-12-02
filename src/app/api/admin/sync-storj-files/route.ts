@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { isStorjConfigured, storjClient } from '@/lib/storj';
 import { ListObjectsV2Command, GetObjectCommand } from '@aws-sdk/client-s3';
 import { prisma } from '@/lib/db';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 // Note: Removed unused import to avoid circular dependency
 
 /**

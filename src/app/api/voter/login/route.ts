@@ -6,6 +6,10 @@ import { logger, logAuth, logRequest } from '@/lib/logger'
 import { sessionManager } from '@/lib/session'
 import { buildPhoneWhereFilters, normalizePhone } from '@/lib/phone'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function handler(request: NextRequest) {
   try {
     logRequest(request, 'Voter login attempt')

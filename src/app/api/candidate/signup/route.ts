@@ -3,6 +3,11 @@ import { prisma } from '@/lib/db'
 import bcrypt from 'bcryptjs'
 import { signToken, JWTError } from '@/lib/jwt'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+
 export async function POST(request: NextRequest) {
   try {
     const { name, email, phone, password } = await request.json()

@@ -55,6 +55,8 @@ const nextConfig = {
       'isomorphic-dompurify',
       'jsdom'
     ],
+    // Prevent static generation issues
+    isrMemoryCacheSize: 0,
   },
   // Configure middleware to avoid Edge Function issues
   // Exclude jsonwebtoken from Edge Function bundling
@@ -179,6 +181,11 @@ const nextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true,
+  },
+  // Force all pages to be dynamic (prevent static generation)
+  // This ensures no pages try to access database during build
+  generateBuildId: async () => {
+    return 'build-' + Date.now()
   },
   // Note: output standalone is disabled for Netlify compatibility
 }

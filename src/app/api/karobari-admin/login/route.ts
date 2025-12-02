@@ -3,6 +3,11 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/db";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-key";
 
 export async function POST(request: NextRequest) {

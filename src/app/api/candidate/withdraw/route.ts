@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { verifyToken, JWTError } from '@/lib/jwt'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+
 export async function POST(request: NextRequest) {
   try {
     // Check if user is authenticated using JWT token (same as candidate dashboard)

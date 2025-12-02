@@ -5,6 +5,11 @@ import { sendPasswordResetConfirmation } from '@/lib/mail'
 import { createRateLimitedRoute, rateLimitConfigs } from '@/lib/rate-limit'
 import { logRequest, logAuth } from '@/lib/logger'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+
 async function handler(request: NextRequest) {
   try {
     logRequest(request, 'Candidate password reset attempt')
