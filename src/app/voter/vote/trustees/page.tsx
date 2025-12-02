@@ -46,6 +46,7 @@ interface Zone {
   id: string
   name: string
   nameGujarati: string
+  code?: string
   seats: number
   trustees: Trustee[]
 }
@@ -147,7 +148,7 @@ export default function TrusteesVotingPage() {
       rule6: 'The method of voting by postal ballot will be announced separately if necessary and subject to circumstances.',
       rule7: 'The right to take decisions in any circumstances or situations will remain with the election management, which will be final and binding on all.',
       rule8: 'By proceeding, you confirm that you have read and understood all the rules and regulations.',
-      electionManagers: 'Election Managers',
+      electionManagers: 'Election Commissioner',
       electionManagerEmail: 'Election Management Email ID',
       zoneSeatAllocation: 'Zone-wise Seat Allocation',
       totalSeats: 'Total Seats: 07',
@@ -229,7 +230,7 @@ export default function TrusteesVotingPage() {
       rule6: 'મિપત્રક દ્વારા મત આપવાનો મર્કલ્પ જરૂરિયાત મુજબ અને સંજોગોને આધીન જાહેર કરવામાં આવશે.',
       rule7: 'કોઈ પણ પરિસ્થિતિ થી લોકડહિમાં મનણવય લેવાનો અધિકાર ચૂંટણી મનયામક પાસે રહેશે જે આખરી અને સર્વને બંધનકારક રહેશે.',
       rule8: 'આગળ વધીને, તમે પુષ્ટિ કરો છો કે તમે બધા નિયમો અને નિયમનો વાંચ્યા છે અને સમજ્યા છે.',
-      electionManagers: 'ચૂંટણી નિર્વાહક',
+      electionManagers: 'ચૂંટણી આયોગ',
       electionManagerEmail: 'ચૂંટણી મનયામક ઈ-મેલ આયડી',
       zoneSeatAllocation: 'ઝોન બેઠક ફાળવણી મર્ભાગ (કુલ બેઠક - ૦૭)',
       totalSeats: 'કુલ બેઠક: ૦૭',
@@ -303,6 +304,7 @@ export default function TrusteesVotingPage() {
             id: trustee.zone.id,
             name: trustee.zone.name || 'Unknown Zone',
             nameGujarati: trustee.zone.nameGujarati || 'Unknown Zone',
+            code: trustee.zone.code || '',
             seats: trustee.zone.seats || 1,
             trustees: [],
           };
@@ -495,9 +497,25 @@ export default function TrusteesVotingPage() {
     setError('')
 
     try {
+      // Ensure all zones have the required number of votes (add NOTA for missing seats)
+      const completeSelections = { ...selectedTrustees }
+      for (const zone of zones) {
+        const selected = completeSelections[zone.id] || []
+        const remainingSeats = zone.seats - selected.length
+        
+        if (remainingSeats > 0) {
+          // Add NOTA votes for remaining seats
+          const notaVotes = []
+          for (let i = 0; i < remainingSeats; i++) {
+            notaVotes.push(`NOTA_${zone.id}_${Date.now()}_${i}`)
+          }
+          completeSelections[zone.id] = [...selected, ...notaVotes]
+        }
+      }
+
       // Flatten the selections for API submission
       const flattenedVotes: Record<string, string> = {}
-      for (const [zoneId, trusteeIds] of Object.entries(selectedTrustees)) {
+      for (const [zoneId, trusteeIds] of Object.entries(completeSelections)) {
         trusteeIds.forEach((trusteeId, index) => {
           flattenedVotes[`${zoneId}_${index}`] = trusteeId
         })
@@ -947,8 +965,8 @@ export default function TrusteesVotingPage() {
               <div className="pt-6 border-t border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">{content[selectedLanguage].electionManagers}</h3>
                 <div className="space-y-2 text-sm text-gray-700">
-                  <p><strong>Shri Mahesh Rajjibhai Navdhare:</strong> 9321578416</p>
-                  <p><strong>Shri Deepak Maljibhai Bhutada:</strong> 9819474238</p>
+                  <p><strong>Mukeshbhai Ravjbhai Navdhare</strong></p>
+                  <p><strong>Deepakbhai Muljibhai Bhutada</strong></p>
                 </div>
                 <div className="mt-3">
                   <p className="text-sm text-gray-700">
@@ -973,7 +991,7 @@ export default function TrusteesVotingPage() {
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-gray-700 min-w-[500px] sm:min-w-0">
                     <div className="text-xs sm:text-sm">02 {selectedLanguage === 'english' ? 'Mumbai' : 'મુંબઈ'}</div>
-                    <div className="text-xs sm:text-sm">01</div>
+                    <div className="text-xs sm:text-sm">02</div>
                     <div className="text-xs">{selectedLanguage === 'english' ? 'Mumbai, Thane district, Navi Mumbai, Nashik, Ahmednagar district, Nagpur, Chandrapur, Madhya Pradesh, Rajasthan, West Bengal, Odisha, Haryana, and entire country' : 'મુંબઈ,થાણા જિલ્લો,નવી મુંબઈ,નાસિક,અહેમદનગર જિલ્લો,નાગપુર,ચંદ્રપુર,મધ્યપ્રદેશ,રાજસ્થાન,પશ્ચિમ બંગાળ,ઓડિશા,હરિયાણા,અને સમગ્ર દેશ'}</div>
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-gray-700 min-w-[500px] sm:min-w-0">
@@ -982,7 +1000,7 @@ export default function TrusteesVotingPage() {
                     <div className="text-xs">{selectedLanguage === 'english' ? 'Karnataka and Goa states' : 'કર્ણાટક અને ગોવા રાજ્ય'}</div>
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-gray-700 min-w-[500px] sm:min-w-0">
-                    <div className="text-xs sm:text-sm">04 {selectedLanguage === 'english' ? 'Abdasa, Garda, Lakhpat, Nakhatrana' : 'અબડાસા, ગરડા,લખપત, નખત્રાણા'}</div>
+                    <div className="text-xs sm:text-sm">04 {selectedLanguage === 'english' ? 'Abdasa and Garda' : 'અબડાસા અને ગરડા'}</div>
                     <div className="text-xs sm:text-sm">01</div>
                     <div className="text-xs">{selectedLanguage === 'english' ? 'Abdasa, Garda, Lakhpat, Nakhatrana taluka all villages' : 'અબડાસા, ગરડા,લખપત, નખત્રાણા તાલુકાના તમામ ગામો'}</div>
                   </div>
@@ -992,8 +1010,8 @@ export default function TrusteesVotingPage() {
                     <div className="text-xs">{selectedLanguage === 'english' ? 'Bhuj, Mirzapar, Madhapar (taluka - Bhuj)' : 'ભુજ,મીરઝાવપર,માધાપર (તાલુકો-ભુજ)'}</div>
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-gray-700 min-w-[500px] sm:min-w-0">
-                    <div className="text-xs sm:text-sm">06 {selectedLanguage === 'english' ? 'Anjar & Other Gujarat' : 'અંજાર અન્ય ગુજરાત'}</div>
-                    <div className="text-xs sm:text-sm">02</div>
+                    <div className="text-xs sm:text-sm">06 {selectedLanguage === 'english' ? 'Anjar & Anya Gujarat' : 'અંજાર અન્ય ગુજરાત'}</div>
+                    <div className="text-xs sm:text-sm">01</div>
                     <div className="text-xs">{selectedLanguage === 'english' ? 'Ahmedabad, Valsad, Surat, Sachin, Vadodara, Ankleshwar, Anand, Mehsana, Bharuch, Dahegam, Kapadvanj, Jamnagar, Morbi, Rajkot, Anjar, Adipur, Mandvi, Mundra, Gandhidham taluka villages' : 'અમદાવાદ,વલસાડ,સુરત,સચીન,વડોદરા,આણંદ,મહેસાણા,ભરૂચ,દહેગામ, કપડવંજ, જામનગર અને મોરબી, અંજાર,આડિપુર,માંડવી,મુંદ્રા,ગાંધીધામ તાલુકાના ગામો'}</div>
                   </div>
                   <div className="grid grid-cols-3 gap-2 font-semibold text-gray-900 pt-2 border-t min-w-[500px] sm:min-w-0">
@@ -1143,6 +1161,39 @@ export default function TrusteesVotingPage() {
                 .map(id => originalZone?.trustees.find(t => t.id === id))
                 .filter((trustee): trustee is NonNullable<typeof trustee> => Boolean(trustee))
               
+              // Zone area descriptions
+              const getZoneArea = (zoneCode: string) => {
+                const zoneAreas: Record<string, { en: string; gu: string }> = {
+                  'RAIGAD': {
+                    en: 'Raigad (Kharghar included), Pune, Ratnagiri, Kolhapur, Sangli (All districts)',
+                    gu: 'રાયગઢ(ખારઘર સહિત),પુણે,રત્નાગીરી,કોલ્હાપુર,સાંગલી (સર્વ જિલ્લા)'
+                  },
+                  'MUMBAI': {
+                    en: 'Mumbai, Thane district, Navi Mumbai, Nashik, Ahmednagar district, Nagpur, Chandrapur, Madhya Pradesh, Rajasthan, West Bengal, Odisha, Haryana, and entire country',
+                    gu: 'મુંબઈ,થાણા જિલ્લો,નવી મુંબઈ,નાસિક,અહેમદનગર જિલ્લો,નાગપુર,ચંદ્રપુર,મધ્યપ્રદેશ,રાજસ્થાન,પશ્ચિમ બંગાળ,ઓડિશા,હરિયાણા,અને સમગ્ર દેશ'
+                  },
+                  'KARNATAKA_GOA': {
+                    en: 'Karnataka and Goa states',
+                    gu: 'કર્ણાટક અને ગોવા રાજ્ય'
+                  },
+                  'ABDASA_GARDA': {
+                    en: 'Abdasa, Garda, Lakhpat, Nakhatrana taluka all villages',
+                    gu: 'અબડાસા, ગરડા,લખપત, નખત્રાણા તાલુકાના તમામ ગામો'
+                  },
+                  'BHUJ': {
+                    en: 'Bhuj, Mirzapar, Madhapar (taluka - Bhuj)',
+                    gu: 'ભુજ,મીરઝાવપર,માધાપર (તાલુકો-ભુજ)'
+                  },
+                  'ANJAR_ANYA_GUJARAT': {
+                    en: 'Ahmedabad, Valsad, Surat, Sachin, Vadodara, Ankleshwar, Anand, Mehsana, Bharuch, Dahegam, Kapadvanj, Jamnagar, Morbi, Rajkot, Anjar, Adipur, Mandvi, Mundra, Gandhidham taluka villages',
+                    gu: 'અમદાવાદ,વલસાડ,સુરત,સચીન,વડોદરા,આણંદ,મહેસાણા,ભરૂચ,દહેગામ, કપડવંજ, જામનગર અને મોરબી, અંજાર,આડિપુર,માંડવી,મુંદ્રા,ગાંધીધામ તાલુકાના ગામો'
+                  }
+                }
+                return zoneAreas[zoneCode] || { en: '', gu: '' }
+              }
+              
+              const zoneArea = getZoneArea(zone.code || '')
+              
               return (
                 <Card key={zone.id} className="border-purple-200">
                   <CardHeader>
@@ -1152,6 +1203,11 @@ export default function TrusteesVotingPage() {
                     <CardDescription>
                       {zone.seats} {zone.seats > 1 ? content[selectedLanguage].seats : content[selectedLanguage].seat}
                     </CardDescription>
+                    {zoneArea.en && (
+                      <p className="text-xs text-gray-500 mt-2">
+                        {selectedLanguage === 'english' ? zoneArea.en : zoneArea.gu}
+                      </p>
+                    )}
                     {/* Zone-specific Search Bar - Moved after zone selector */}
                     <div className="mt-4">
                       <div className="relative">

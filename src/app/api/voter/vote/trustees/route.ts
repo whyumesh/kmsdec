@@ -3,7 +3,7 @@ import { prisma } from '@/lib/db'
 import { isEligibleToVote } from '@/lib/age-validation'
 import { verifyToken } from '@/lib/jwt'
 import { handleError } from '@/lib/error-handler'
-import { getOrCreateTrusteeNotaCandidate } from '@/lib/nota'
+import { getOrCreateTrusteeNotaCandidate, getOrCreateTrusteeNotaCandidateForSeat } from '@/lib/nota'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
@@ -122,13 +122,14 @@ export async function POST(request: NextRequest) {
     const validatedVotes: Array<{ zoneId: string; trusteeId: string; trustee: any; isNota: boolean }> = [];
     
     for (const [voteKey, trusteeId] of Object.entries(votes)) {
-      const [zoneId] = voteKey.split('_');
+      const [zoneId, seatIndex] = voteKey.split('_');
       
-      // Skip NOTA votes (they start with "NOTA_")
+      // Handle NOTA votes (they start with "NOTA_")
       if (typeof trusteeId === 'string' && trusteeId.startsWith('NOTA_')) {
         const parts = trusteeId.split('_')
         const notaZoneId = parts[1] || zoneId
-        const notaCandidateId = await getOrCreateTrusteeNotaCandidate(notaZoneId)
+        // Create unique NOTA candidate for each seat position to avoid unique constraint violation
+        const notaCandidateId = await getOrCreateTrusteeNotaCandidateForSeat(notaZoneId, seatIndex || '0')
         validatedVotes.push({ zoneId: notaZoneId, trusteeId: notaCandidateId, trustee: null, isNota: true });
         continue;
       }

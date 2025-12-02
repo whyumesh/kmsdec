@@ -39,6 +39,34 @@ export async function getOrCreateTrusteeNotaCandidate(zoneId: string) {
   return candidate.id
 }
 
+export async function getOrCreateTrusteeNotaCandidateForSeat(zoneId: string, seatIndex: string) {
+  // Create unique NOTA candidate for each seat position to allow multiple NOTA votes per zone
+  const seatPosition = `NOTA_SEAT_${seatIndex}`
+  const existing = await prisma.trusteeCandidate.findFirst({
+    where: { zoneId, position: seatPosition },
+    select: { id: true }
+  })
+  if (existing) return existing.id
+
+  const zone = await getZoneInfo(zoneId)
+  const displayName = zone ? `NOTA - ${zone.name} (Seat ${seatIndex})` : `NOTA (Seat ${seatIndex})`
+
+  const candidate = await prisma.trusteeCandidate.create({
+    data: {
+      name: displayName,
+      nameGujarati: zone?.nameGujarati ? `${zone.nameGujarati} (સીટ ${seatIndex})` : `NOTA (સીટ ${seatIndex})`,
+      region: 'NOTA',
+      position: seatPosition,
+      seat: 'NOTA',
+      status: 'APPROVED',
+      zoneId,
+      isOnlineRegistration: false
+    },
+    select: { id: true }
+  })
+  return candidate.id
+}
+
 export async function getOrCreateKarobariNotaCandidate(zoneId: string) {
   const existing = await prisma.karobariCandidate.findFirst({
     where: { zoneId, position: 'NOTA' },

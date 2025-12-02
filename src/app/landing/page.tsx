@@ -177,7 +177,7 @@ export default function LandingPage() {
                             Shri Kutchi Maheshwari Madhyastha Mahajan Samiti
                         </h1>
                         <h2 className="text-lg sm:text-2xl md:text-3xl font-semibold text-blue-600 mb-3 sm:mb-4">
-                            Election 2025-26
+                            Election 2026
                         </h2>
                         <p className="text-base sm:text-xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto px-4">
                             Participate in our democratic process and help shape the

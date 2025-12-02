@@ -157,7 +157,7 @@ export default function VoterDashboard() {
       goToLogin: 'લૉગ ઇન પર જાઓ',
       voterDashboard: 'મતદાતા ડેશબોર્ડ',
       welcomeBack: 'પાછા આવો,',
-      yourZoneInformation: 'તમારી વિભાગ માહિતી',
+      yourZoneInformation: 'તમારા વિભાગ ની માહિતી',
       yuvaPankhZone: 'યુવા પાંખ વિભાગ',
       trusteeZone: 'ટ્રસ્ટી વિભાગ',
       eligibleFor: 'પાત્ર',
@@ -464,7 +464,12 @@ export default function VoterDashboard() {
         {/* Welcome Section */}
         <div className="mb-4">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">{content[selectedLanguage].voterDashboard}</h2>
-          <p className="text-gray-600">{content[selectedLanguage].welcomeBack} {voterData.name}</p>
+          <p className="text-gray-600">
+            {selectedLanguage === 'gujarati' 
+              ? `${voterData.name}, સ્વાગત છે`
+              : `${content[selectedLanguage].welcomeBack} ${voterData.name}`
+            }
+          </p>
         </div>
 
         {/* Zone Information */}

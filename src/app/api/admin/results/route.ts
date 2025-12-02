@@ -224,11 +224,13 @@ export async function GET(request: NextRequest) {
         const voteKey = `${electionType}_${zone.id}`;
         
         const totalVoters = voterCountMap.get(voterKey) || 0;
-        const totalVotes = voteCountMap.get(voteKey) || 0; // unique voters who participated
+        const uniqueVoters = voteCountMap.get(voteKey) || 0; // unique voters who participated
         const voteStats = voteStatsByZone.get(voteKey);
         const actualVotes = voteStats?.actualVotes || 0;
         const notaVotes = voteStats?.notaVotes || 0;
-        const turnoutPercentage = totalVoters > 0 ? ((totalVotes / totalVoters) * 100) : 0;
+        // For trustee elections, count NOTA as votes - totalVotes includes both actual and NOTA votes
+        const totalVotes = actualVotes + notaVotes;
+        const turnoutPercentage = totalVoters > 0 ? ((uniqueVoters / totalVoters) * 100) : 0;
 
         return {
           zoneId: zone.id,
