@@ -12,6 +12,7 @@ import Link from 'next/link'
 import Logo from '@/components/Logo'
 import CandidateProfileModal from '@/components/CandidateProfileModal'
 import ScreenshotProtection from '@/components/ScreenshotProtection'
+import Footer from '@/components/Footer'
 import { set } from 'zod'
 
 interface Candidate {
@@ -66,6 +67,49 @@ export default function YuvaPankVotingPage() {
   const [selectedLanguage, setSelectedLanguage] = useState<'english' | 'gujarati'>('english')
   const [rulesAccepted, setRulesAccepted] = useState(false)
   const router = useRouter()
+
+  // Yuva Pankh Winners Data
+  const yuvaPankhWinners = {
+    'ABDASA_LAKHPAT_NAKHATRANA': {
+      zoneName: 'Abdasa, Lakhpat and Nakhatrana',
+      zoneNameGujarati: 'અબડાસા, લખપત અને નખત્રાણા',
+      seats: 2,
+      winners: [
+        { name: 'Jigar Arvind Bhedakiya', nameGujarati: 'જિગર અરવિંદ ભેડાકિયા' }
+      ]
+    },
+    'BHUJ_ANJAR': {
+      zoneName: 'Bhuj and Anjar',
+      zoneNameGujarati: 'ભુજ અને અંજાર',
+      seats: 2,
+      winners: [
+        { name: 'Harsh Rajendra Navdhare', nameGujarati: 'હર્ષ રાજેન્દ્ર નવધરે' },
+        { name: 'Hetvi Mehul Bhutada', nameGujarati: 'હેત્વી મેહુલ ભૂતડા' }
+      ]
+    },
+    'ANYA_GUJARAT': {
+      zoneName: 'Anya Gujarat',
+      zoneNameGujarati: 'અન્ય ગુજરાત',
+      seats: 3,
+      winners: [
+        { name: 'Vatsal Manoj Gingal', nameGujarati: 'વત્સલ મનોજ ગિંગલ' },
+        { name: 'Rushik Dhirajlal Mall', nameGujarati: 'રુષિક ધીરજલાલ મલ્લ' }
+      ]
+    },
+    'MUMBAI': {
+      zoneName: 'Mumbai',
+      zoneNameGujarati: 'મુંબઈ',
+      seats: 4,
+      winners: [
+        { name: 'Keyur Chetan Navdhare', nameGujarati: 'કેયુર ચેતન નવધરે' },
+        { name: 'Harsh Jaymin Mall', nameGujarati: 'હર્ષ જયમીન મલ્લ' },
+        { name: 'Drashti Kiran Rathi', nameGujarati: 'દ્રષ્ટિ કિરણ રાઠી' },
+        { name: 'Vidhi Kirit Mall', nameGujarati: 'વિધિ કિરીત મલ્લ' }
+      ]
+    }
+  }
+
+  // Check if zone is completed (has winners) - will be checked in fetchCandidates
 
   // Language-specific content
   const content = {
@@ -132,7 +176,9 @@ export default function YuvaPankVotingPage() {
       rule7: 'Any attempt to manipulate or tamper with the voting process is strictly prohibited.',
       rule8: 'By proceeding, you confirm that you have read and understood all the rules and regulations.',
       acceptAndContinue: 'I Accept and Continue',
-      backToDashboard: 'Back to Dashboard'
+      backToDashboard: 'Back to Dashboard',
+      yuvaPankhWinners: 'Yuva Pankh Winners',
+      winners: 'Winners'
     },
     gujarati: {
       title: 'યુવા પાંખ સમિતિ ચૂંટણી',
@@ -186,18 +232,20 @@ export default function YuvaPankVotingPage() {
       region: 'પ્રદેશ',
       loadingCandidates: 'ઉમેદવારો લોડ કરી રહ્યા છીએ...',
       error: 'ભૂલ',
-      rulesAndRegulations: 'નિયમો અને નિયમનો',
-      readRulesCarefully: 'કૃપા કરીને મતદાન કરવા માટે આગળ વધતા પહેલા નીચેના નિયમો અને નિયમનો કાળજીપૂર્વક વાંચો.',
-      rule1: 'તમે માત્ર તમારા સોંપાયેલા વિભાગના ઉમેદવારોને મત આપી શકો છો.',
-      rule2: 'તમારે તમારા વિભાગ માટે નિર્દિષ્ટ ઉમેદવારોની ચોક્કસ સંખ્યા પસંદ કરવી આવશ્યક છે.',
-      rule3: 'એકવાર તમે તમારો મત સબમિટ કરો છો, તે બદલી અથવા સંશોધિત કરી શકાતો નથી.',
-      rule4: 'તમારો મત ગુપ્ત અને સુરક્ષિત છે. કોઈ પણ જોઈ શકતું નથી કે તમે કોને મત આપ્યો છે.',
-      rule5: 'તમે આ ચૂંટણીમાં માત્ર એક વાર મત આપી શકો છો.',
-      rule6: 'જો તમે બધા જરૂરી ઉમેદવારો પસંદ ન કરો છો, તો બાકીના મતો આપમેળે NOTA (ઉપરનામાંથી કોઈ નહીં) તરીકે ગણવામાં આવશે.',
-      rule7: 'મતદાન પ્રક્રિયાને ચેડાવવા અથવા ફેરબદલ કરવાનો કોઈ પણ પ્રયાસ સખત રીતે પ્રતિબંધિત છે.',
-      rule8: 'આગળ વધીને, તમે પુષ્ટિ કરો છો કે તમે બધા નિયમો અને નિયમનો વાંચ્યા છે અને સમજ્યા છે.',
+      rulesAndRegulations: 'નિયમો અને સુચનાઓ',
+      readRulesCarefully: 'કૃપા કરી ને મતદાન ની પ્રક્રિયા શરૂ કરવા પહેલા અહીં જણાવેલ નિયમો અને સુચનાઓ ધ્યાન પુર્વક વાંચી લેશોજી.',
+      rule1: 'તમે માત્ર તમારા વિસ્તાર નાજ ઉમેદવાર ને મત આપી શકો છો.',
+      rule2: 'તમારા વિસ્તાર ના ઉમેદવાર માટે જેટલી બેઠકો (સંખ્યા) ફાળવેલ છે, તેટલી બેઠકો માટે મતદાન કરવું આવશ્યક છે.',
+      rule3: 'એક વાર તમારો અમુલ્ય મત સબમીટ બટન દ્વારા ક્લીક કર્યા બાદ તેમાં કોઈ પણ પ્રકારે ફેરફાર શક્ય નથી.',
+      rule4: 'આપનો મત ગોપનીય અને સુરક્ષીત રહેશે. ચુંટણી સમિતિના કોઈ પણ સભ્ય ને જાણ નહી હોય કે તમે કયાં ઉમેદવાર ને મત આપેલ છે.',
+      rule5: '૩ નંબર સાથે આવરી લીધેલ છે.',
+      rule6: 'જો તમે કોઈ પણ ઉમેદવાર ને મત નથી આપતા તો તેની ગણતરી NOTA માં કરવામાં આવશે. (NOTA - None Of The Above) ઉપરોક્ત સભ્ય માથી કોઈ નહી',
+      rule7: 'ઓનલાઇન મત પ્રક્રિયા માં કોઈપણ ટેકનીકલ પ્રકારે ચેડા કરવા અથવા ગેરરીતિ આચરી શકાશે નહી.',
+      rule8: 'આ સાથે તમે પુષ્ટિ ના ટેબ પર ક્લીક કરી સહમતી દર્શાવશોજી કે તમે નિયમો અને સુચનાઓ ધ્યાન પુર્વક વાંચેલ છે.',
       acceptAndContinue: 'હું સ્વીકારું છું અને આગળ વધું',
-      backToDashboard: 'ડેશબોર્ડ પર પાછા જાઓ'
+      backToDashboard: 'ડેશબોર્ડ પર પાછા જાઓ',
+      yuvaPankhWinners: 'યુવા પાંખ વિજેતાઓ',
+      winners: 'વિજેતાઓ'
     }
   }
 
@@ -244,14 +292,42 @@ export default function YuvaPankVotingPage() {
       // Use yuva pankh zone specifically
       const voterZone = voterData.voter.yuvaPankZone
 
-      if (!voterZone) {
-        setError('You are not eligible to vote in Yuva Pankh elections. No zone assigned for this election type.')
+      setVoterZone(voterZone)
+
+      // Check if zone is completed (has winners declared)
+      const completedYuvaPankhZones = ['ABDASA_LAKHPAT_NAKHATRANA', 'KUTCH', 'BHUJ_ANJAR', 'ANYA_GUJARAT', 'MUMBAI']
+      const isZoneCompleted = voterZone && completedYuvaPankhZones.includes(voterZone.code)
+
+      // If zone is completed or no zone assigned, show winners instead of voting
+      if (!voterZone || isZoneCompleted) {
+        // Show winners - create zones from winners data
+        const winnerZones: Zone[] = Object.entries(yuvaPankhWinners).map(([zoneCode, zoneData]) => ({
+          id: zoneCode,
+          name: zoneData.zoneName,
+          nameGujarati: zoneData.zoneNameGujarati,
+          code: zoneCode,
+          seats: zoneData.seats,
+          candidates: zoneData.winners.map((winner, index) => ({
+            id: `winner-${zoneCode}-${index}`,
+            name: winner.name,
+            nameGujarati: winner.nameGujarati || null,
+            email: '',
+            phone: '',
+            region: zoneData.zoneName,
+            position: 'Winner',
+            photoUrl: undefined,
+            photoFileKey: undefined,
+            age: null,
+            gender: null,
+            birthDate: null
+          }))
+        }))
+        setZones(winnerZones)
+        setIsLoading(false)
         return
       }
 
-      setVoterZone(voterZone)
-
-      // Now fetch candidates for the voter's yuva pankh zone only
+      // Now fetch candidates for the voter's yuva pankh zone only (only for pending zones)
       const response = await fetch(`/api/elections/yuva-pank/candidates?zoneId=${voterZone.id}`, {
         credentials: 'include' // This ensures cookies are sent
       })
@@ -570,7 +646,7 @@ export default function YuvaPankVotingPage() {
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <Logo size="md" />
                 <div>
-                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMS ELECTION 2026</h1>
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMMMS ELECTION 2026</h1>
                   <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
                 </div>
               </div>
@@ -717,8 +793,13 @@ export default function YuvaPankVotingPage() {
     )
   }
 
-  // Show rules and regulations page if not accepted
-  if (!rulesAccepted) {
+  // Check if showing winners (skip rules for winners display)
+  const completedYuvaPankhZones = ['ABDASA_LAKHPAT_NAKHATRANA', 'KUTCH', 'BHUJ_ANJAR', 'ANYA_GUJARAT', 'MUMBAI']
+  const isZoneCompleted = voterZone && completedYuvaPankhZones.includes(voterZone.code)
+  const showWinners = !voterZone || isZoneCompleted
+
+  // Show rules and regulations page if not accepted (only for voting, not for winners)
+  if (!rulesAccepted && !showWinners) {
     return (
       <div className="min-h-screen bg-gray-50">
         <ScreenshotProtection />
@@ -728,7 +809,7 @@ export default function YuvaPankVotingPage() {
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <Logo size="md" />
                 <div>
-                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMS ELECTION 2026</h1>
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMMMS ELECTION 2026</h1>
                   <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
                 </div>
               </div>
@@ -791,12 +872,6 @@ export default function YuvaPankVotingPage() {
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-6 h-6 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-semibold text-xs mt-0.5">
-                    5
-                  </div>
-                  <p>{content[selectedLanguage].rule5}</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-semibold text-xs mt-0.5">
                     6
                   </div>
                   <p>{content[selectedLanguage].rule6}</p>
@@ -843,7 +918,7 @@ export default function YuvaPankVotingPage() {
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <Logo size="md" />
                 <div>
-                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMS ELECTION 2026</h1>
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMMMS ELECTION 2026</h1>
                   <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
                 </div>
               </div>
@@ -874,48 +949,155 @@ export default function YuvaPankVotingPage() {
         </header>
 
         <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Page Title */}
-          <div className="mb-6 sm:mb-8">
-            <h2 className="text-xl sm:text-3xl font-bold text-gray-900">{content[selectedLanguage].title}</h2>
-            {voterZone && (
-              <p className="text-gray-600">
-                {content[selectedLanguage].yourZone}: <strong>{selectedLanguage === 'english' ? voterZone.name : voterZone.nameGujarati}</strong> - {content[selectedLanguage].selectUpTo} {voterZone.seats} {voterZone.seats > 1 ? content[selectedLanguage].candidates : content[selectedLanguage].candidate}
-              </p>
-            )}
-          </div>
+          {(() => {
+            const completedYuvaPankhZones = ['ABDASA_LAKHPAT_NAKHATRANA', 'KUTCH', 'BHUJ_ANJAR', 'ANYA_GUJARAT', 'MUMBAI']
+            const isZoneCompleted = voterZone && completedYuvaPankhZones.includes(voterZone.code)
+            const showWinners = !voterZone || isZoneCompleted
 
-          {error && (
-            <Card className="mb-6 border-red-200 bg-red-50">
-              <CardContent className="pt-6">
-                <div className="flex items-center space-x-2 text-red-800">
-                  <AlertCircle className="h-5 w-5" />
-                  <span className="font-medium">{content[selectedLanguage].error}: {error}</span>
+            if (showWinners) {
+              // Show winners display
+              return (
+                <>
+                  {/* Page Title - Winners */}
+                  <div className="mb-8 text-center">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-green-700 rounded-full mb-4 shadow-lg">
+                      <Users className="h-10 w-10 text-white" />
+                    </div>
+                    <h2 className="text-4xl font-bold text-gray-900 mb-2">Yuva Pankh Samiti Elections 2026-2029</h2>
+                    <p className="text-xl text-gray-600 mb-4">{content[selectedLanguage].yuvaPankhWinners || 'Elected Winners - Zone Wise'}</p>
+                    <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-full">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <p className="text-sm text-green-800 font-medium">
+                        {selectedLanguage === 'english' ? 'Election Completed - All winners declared' : 'ચૂંટણી પૂર્ણ - બધા વિજેતાઓ જાહેર'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Zone-wise Winners Display */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                    {zones.map((zone, zoneIndex) => {
+                      const zoneColors = [
+                        { bg: 'bg-gradient-to-br from-green-500 to-green-600', border: 'border-green-300', card: 'bg-green-50', text: 'text-green-700' },
+                        { bg: 'bg-gradient-to-br from-blue-500 to-blue-600', border: 'border-blue-300', card: 'bg-blue-50', text: 'text-blue-700' },
+                        { bg: 'bg-gradient-to-br from-purple-500 to-purple-600', border: 'border-purple-300', card: 'bg-purple-50', text: 'text-purple-700' },
+                        { bg: 'bg-gradient-to-br from-orange-500 to-orange-600', border: 'border-orange-300', card: 'bg-orange-50', text: 'text-orange-700' },
+                      ]
+                      const colors = zoneColors[zoneIndex % zoneColors.length]
+                      
+                      return (
+                        <Card key={zone.id} className={`overflow-hidden border-2 ${colors.border} hover:shadow-xl transition-all duration-300`}>
+                          {/* Zone Header */}
+                          <div className={`${colors.bg} p-6 text-white`}>
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex-1">
+                                <h3 className="text-2xl font-bold mb-1">
+                                  {selectedLanguage === 'english' ? zone.name : zone.nameGujarati}
+                                </h3>
+                                {selectedLanguage === 'english' && zone.nameGujarati && (
+                                  <p className="text-white/80 text-sm">{zone.nameGujarati}</p>
+                                )}
+                              </div>
+                              <div className="ml-4 text-right">
+                                <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2">
+                                  <div className="text-3xl font-bold">{zone.candidates.length}</div>
+                                  <div className="text-xs text-white/80">Winner{zone.candidates.length > 1 ? 's' : ''}</div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-white/80">
+                              <Users className="h-4 w-4" />
+                              <span>{zone.seats} seat{zone.seats > 1 ? 's' : ''} allocated</span>
+                            </div>
+                          </div>
+
+                          {/* Winners List */}
+                          <CardContent className={`p-6 ${colors.card}`}>
+                            {zone.candidates.length > 0 ? (
+                              <div className="space-y-3">
+                                {zone.candidates.map((candidate, candidateIndex) => (
+                                  <div 
+                                    key={candidate.id} 
+                                    className="bg-white rounded-lg p-4 border border-gray-200 hover:border-gray-300 transition-all shadow-sm hover:shadow-md"
+                                  >
+                                    <div className="flex items-start gap-3">
+                                      {/* Winner Badge Number */}
+                                      <div className={`flex-shrink-0 w-10 h-10 ${colors.bg} rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md`}>
+                                        {candidateIndex + 1}
+                                      </div>
+                                      
+                                      {/* Candidate Info */}
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-start justify-between gap-2 mb-2">
+                                          <h4 className="font-bold text-gray-900 text-lg leading-tight">
+                                            {selectedLanguage === 'english' ? candidate.name : (candidate.nameGujarati || candidate.name)}
+                                          </h4>
+                                          <Badge className={`${colors.text} bg-white border-2 ${colors.border} flex-shrink-0`}>
+                                            <CheckCircle className="h-3 w-3 mr-1" />
+                                            {content[selectedLanguage].winners || 'Winner'}
+                                          </Badge>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-sm text-gray-500 text-center py-4">No winners found for this zone</p>
+                            )}
+                          </CardContent>
+                        </Card>
+                      )
+                    })}
+                  </div>
+                </>
+              )
+            }
+
+            // Show voting interface for pending zones
+            return (
+              <>
+                {/* Page Title */}
+                <div className="mb-6 sm:mb-8">
+                  <h2 className="text-xl sm:text-3xl font-bold text-gray-900">{content[selectedLanguage].title}</h2>
+                  {voterZone && (
+                    <p className="text-gray-600">
+                      {content[selectedLanguage].yourZone}: <strong>{selectedLanguage === 'english' ? voterZone.name : voterZone.nameGujarati}</strong> - {content[selectedLanguage].selectUpTo} {voterZone.seats} {voterZone.seats > 1 ? content[selectedLanguage].candidates : content[selectedLanguage].candidate}
+                    </p>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
-          )}
 
-          {/* Instructions */}
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Vote className="h-6 w-6 text-green-600" />
-                <span>{content[selectedLanguage].votingInstructions}</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2 text-sm text-gray-600">
-                <p>{selectedLanguage === 'english' ? '1.' : '૧.'} {content[selectedLanguage].instruction1}</p>
-                <p>{selectedLanguage === 'english' ? '2.' : '૨.'} {content[selectedLanguage].instruction2}</p>
-                <p>{selectedLanguage === 'english' ? '3.' : '૩.'} {content[selectedLanguage].instruction3}</p>
-                <p>{selectedLanguage === 'english' ? '4.' : '૪.'} {content[selectedLanguage].instruction4}</p>
-                <p>{selectedLanguage === 'english' ? '5.' : '૫.'} {content[selectedLanguage].instruction5}</p>
-              </div>
-            </CardContent>
-          </Card>
+                {error && (
+                  <Card className="mb-6 border-red-200 bg-red-50">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center space-x-2 text-red-800">
+                        <AlertCircle className="h-5 w-5" />
+                        <span className="font-medium">{content[selectedLanguage].error}: {error}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
 
-          {/* Your Zone Candidates */}
-          <div className="space-y-6">
+                {/* Instructions */}
+                <Card className="mb-8">
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Vote className="h-6 w-6 text-green-600" />
+                      <span>{content[selectedLanguage].votingInstructions}</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <p>{selectedLanguage === 'english' ? '1.' : '૧.'} {content[selectedLanguage].instruction1}</p>
+                      <p>{selectedLanguage === 'english' ? '2.' : '૨.'} {content[selectedLanguage].instruction2}</p>
+                      <p>{selectedLanguage === 'english' ? '3.' : '૩.'} {content[selectedLanguage].instruction3}</p>
+                      <p>{selectedLanguage === 'english' ? '4.' : '૪.'} {content[selectedLanguage].instruction4}</p>
+                      <p>{selectedLanguage === 'english' ? '5.' : '૫.'} {content[selectedLanguage].instruction5}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Your Zone Candidates */}
+                <div className="space-y-6">
             {zones.map((zone) => (
               <Card key={zone.id}>
                 <CardHeader>
@@ -1042,53 +1224,50 @@ export default function YuvaPankVotingPage() {
                 </CardContent>
               </Card>
             ))}
-          </div>
+                </div>
 
-          {/* Submit Button */}
-          <div className="mt-6 sm:mt-8 flex justify-center">
-            <Button
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 sm:px-8 py-3 text-base sm:text-lg w-full sm:w-auto"
-            >
-              {isSubmitting ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  {content[selectedLanguage].submittingVote}
-                </>
-              ) : (
-                <>
-                  <Vote className="h-5 w-5 mr-2" />
-                  {content[selectedLanguage].submitVote}
-                </>
-              )}
-            </Button>
-          </div>
+                {/* Submit Button */}
+                <div className="mt-6 sm:mt-8 flex justify-center">
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 sm:px-8 py-3 text-base sm:text-lg w-full sm:w-auto"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        {content[selectedLanguage].submittingVote}
+                      </>
+                    ) : (
+                      <>
+                        <Vote className="h-5 w-5 mr-2" />
+                        {content[selectedLanguage].submitVote}
+                      </>
+                    )}
+                  </Button>
+                </div>
 
-          {/* Progress Indicator */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              {content[selectedLanguage].totalCandidatesSelected}: {Object.values(selectedCandidates).reduce((sum, selections) => sum + selections.length, 0)}
-            </p>
-            <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-              <div
-                className="bg-green-600 h-2 rounded-full transition-all duration-300"
-                style={{
-                  width: `${Math.min(100, (Object.values(selectedCandidates).reduce((sum, selections) => sum + selections.length, 0) / 3) * 100)}%`
-                }}
-              ></div>
-            </div>
-          </div>
+                {/* Progress Indicator */}
+                <div className="mt-6 text-center">
+                  <p className="text-sm text-gray-600">
+                    {content[selectedLanguage].totalCandidatesSelected}: {Object.values(selectedCandidates).reduce((sum, selections) => sum + selections.length, 0)}
+                  </p>
+                  <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                    <div
+                      className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${Math.min(100, (Object.values(selectedCandidates).reduce((sum, selections) => sum + selections.length, 0) / 3) * 100)}%`
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              </>
+            )
+          })()}
         </main>
 
-        {/* Footer with subtitle */}
-        <footer className="bg-gray-50 border-t mt-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <p className="text-xs text-gray-500 text-center">
-              Election 2026: Shree Panvel Kutchi Maheshwari Mahajan
-            </p>
-          </div>
-        </footer>
+        {/* Footer */}
+        <Footer />
       </div>
 
       {/* Candidate Profile Modal */}

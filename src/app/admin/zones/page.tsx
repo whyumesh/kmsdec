@@ -8,6 +8,7 @@ import { ArrowLeft, MapPin, Users, Award } from 'lucide-react'
 import Link from 'next/link'
 import Logo from '@/components/Logo'
 import { useAdminAuth } from '@/hooks/useAdminAuth'
+import Footer from '@/components/Footer'
 
 interface Zone {
   id: string
@@ -117,7 +118,7 @@ export default function ZonesPage() {
             <div className="flex items-center space-x-4">
               <Logo size="md" />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">KMS ELECTION 2026</h1>
+                <h1 className="text-2xl font-bold text-gray-900">KMMMS ELECTION 2026</h1>
                 <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
               </div>
             </div>
@@ -296,6 +297,9 @@ export default function ZonesPage() {
           ))}
         </div>
       </main>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

@@ -25,6 +25,7 @@ import {
 import { Building, ArrowLeft, Save, CheckCircle, AlertCircle, Calendar, Image, Upload } from "lucide-react";
 import Logo from "@/components/Logo";
 import { FileUploadStorj } from "@/components/ui/file-upload-storj";
+import Footer from "@/components/Footer";
 
 interface NominationFormData {
   // Office Use Fields (Admin fills)
@@ -822,29 +823,7 @@ export default function KarobariNominatePage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-6 sm:py-8 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="border-t border-gray-800 pt-6 text-center text-sm text-gray-400">
-            <p>
-              <p className="text-xs text-gray-500 mb-2">
-                Election 2026: Shree Panvel Kutchi Maheshwari Mahajan
-              </p>
-              <p>&copy; 2025 KMS Election 2026. All rights reserved.</p>
-            </p>
-            <p className="mt-2">
-              Designed & Developed by{" "}
-              <Link 
-                href="https://www.teamfullstack.in" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-blue-400 hover:text-blue-300 hover:underline transition-colors font-semibold"
-              >
-                Parth Gagdani, Team FullStack (Thane)
-              </Link>
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

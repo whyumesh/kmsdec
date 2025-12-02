@@ -9,6 +9,7 @@ import { Progress } from '@/components/ui/progress'
 import { Vote, Users, Building, Award, CheckCircle, ArrowLeft, Eye, ArrowRight, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import Logo from '@/components/Logo'
+import Footer from '@/components/Footer'
 
 interface Candidate {
   id: string
@@ -690,7 +691,7 @@ export default function UnifiedVotingPage() {
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <Logo size="sm" />
                 <div>
-                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMS ELECTION 2026</h1>
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMMMS ELECTION 2026</h1>
                   <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
                   <p className="text-xs sm:text-sm text-gray-600 mt-1">Unified Voting System</p>
                 </div>
@@ -1150,14 +1151,8 @@ export default function UnifiedVotingPage() {
           </div>
         </div>
 
-        {/* Footer with subtitle */}
-        <footer className="bg-gray-50 border-t mt-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <p className="text-xs text-gray-500 text-center">
-              Election 2026: Shree Panvel Kutchi Maheshwari Mahajan
-            </p>
-          </div>
-        </footer>
+        {/* Footer */}
+        <Footer />
       </div>
     </>
   )

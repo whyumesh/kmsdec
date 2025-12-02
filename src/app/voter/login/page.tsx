@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Vote, AlertCircle, MapPin, ArrowLeft } from 'lucide-react'
 import { getHiddenLocation } from '@/lib/geolocation'
 import Logo from '@/components/Logo'
+import Footer from '@/components/Footer'
 
 export default function VoterLoginPage() {
   const [phone, setPhone] = useState('')
@@ -284,7 +285,7 @@ export default function VoterLoginPage() {
             <div className="flex items-center space-x-2 sm:space-x-4">
               <Logo size="sm" />
               <div>
-                <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMS ELECTION 2026</h1>
+                <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMMMS ELECTION 2026</h1>
                 <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
               </div>
             </div>
@@ -474,14 +475,8 @@ export default function VoterLoginPage() {
         </Card>
       </div>
 
-      {/* Footer with subtitle */}
-      <footer className="bg-gray-50 border-t mt-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <p className="text-xs text-gray-500 text-center">
-            Election 2026: Shree Panvel Kutchi Maheshwari Mahajan
-          </p>
-        </div>
-      </footer>
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

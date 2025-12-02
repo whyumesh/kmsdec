@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Vote, Users, Building, Award, CheckCircle, Clock, MapPin, ArrowRight, LogOut, BarChart3, RefreshCw, AlertCircle, Eye } from 'lucide-react'
 import Link from 'next/link'
 import Logo from '@/components/Logo'
+import Footer from '@/components/Footer'
 import {
     BarChart,
     Bar,
@@ -149,7 +150,15 @@ export default function VoterDashboard() {
       highestTurnout: 'Highest Voter Turnout',
       averageTurnout: 'Average Turnout',
       totalVoters: 'Total Voters',
-      failedToLoad: 'Failed to load election results'
+      failedToLoad: 'Failed to load election results',
+      electionTitle: 'KMMMS ELECTION 2026',
+      electionCommission: 'Election Commission : Shree Panvel Kutchi Maheshwari Mahajan',
+      yuvaPankhWinners: 'Yuva Pankh Winners',
+      yuvaPankhWinnersDescription: 'Elected members for completed zones',
+      zone: 'Zone',
+      winners: 'Winners',
+      viewWinners: 'View Winners',
+      viewElectedMembers: 'View Elected Members'
     },
     gujarati: {
       loading: 'તમારા ડેશબોર્ડને લોડ કરી રહ્યા છીએ...',
@@ -198,7 +207,56 @@ export default function VoterDashboard() {
       highestTurnout: 'મતદાન ટકાવારી',
       averageTurnout: 'સરેરાશ મતદાન',
       totalVoters: 'કુલ મતદાતાઓ',
-      failedToLoad: 'ચૂંટણી પરિણામો લોડ કરવામાં નિષ્ફળ'
+      failedToLoad: 'ચૂંટણી પરિણામો લોડ કરવામાં નિષ્ફળ',
+      electionTitle: 'શ્રી કચ્છી માહેશ્વરી મધ્યસ્થ મહાજન સમિતિ - ચુંટણી વર્ષ ૨૦૨૬',
+      electionCommission: 'ચૂંટણી નિયામક : શ્રી પનવેલ કચ્છી મહેશ્વરી મહાજન',
+      yuvaPankhWinners: 'યુવા પાંખ વિજેતાઓ',
+      yuvaPankhWinnersDescription: 'પૂર્ણ થયેલ વિભાગો માટે નિવાચિત સભ્યો',
+      zone: 'વિભાગ',
+      winners: 'વિજેતાઓ',
+      viewWinners: 'વિજેતાઓ જુઓ',
+      viewElectedMembers: 'નિવાચિત સભ્યો જુઓ'
+    }
+  }
+
+  // Yuva Pankh Winners Data
+  const yuvaPankhWinners = {
+    'ABDASA_LAKHPAT_NAKHATRANA': {
+      zoneName: 'Abdasa, Lakhpat and Nakhatrana',
+      zoneNameGujarati: 'અબડાસા, લખપત અને નખત્રાણા',
+      seats: 2,
+      winners: [
+        { name: 'Jigar Arvind Bhedakiya', nameGujarati: 'જિગર અરવિંદ ભેડાકિયા' }
+      ]
+    },
+    'BHUJ_ANJAR': {
+      zoneName: 'Bhuj and Anjar',
+      zoneNameGujarati: 'ભુજ અને અંજાર',
+      seats: 2,
+      winners: [
+        { name: 'Harsh Rajendra Navdhare', nameGujarati: 'હર્ષ રાજેન્દ્ર નવધરે' },
+        { name: 'Hetvi Mehul Bhutada', nameGujarati: 'હેત્વી મેહુલ ભૂતડા' }
+      ]
+    },
+    'ANYA_GUJARAT': {
+      zoneName: 'Anya Gujarat',
+      zoneNameGujarati: 'અન્ય ગુજરાત',
+      seats: 3,
+      winners: [
+        { name: 'Vatsal Manoj Gingal', nameGujarati: 'વત્સલ મનોજ ગિંગલ' },
+        { name: 'Rushik Dhirajlal Mall', nameGujarati: 'રુષિક ધીરજલાલ મલ્લ' }
+      ]
+    },
+    'MUMBAI': {
+      zoneName: 'Mumbai',
+      zoneNameGujarati: 'મુંબઈ',
+      seats: 4,
+      winners: [
+        { name: 'Keyur Chetan Navdhare', nameGujarati: 'કેયુર ચેતન નવધરે' },
+        { name: 'Harsh Jaymin Mall', nameGujarati: 'હર્ષ જયમીન મલ્લ' },
+        { name: 'Drashti Kiran Rathi', nameGujarati: 'દ્રષ્ટિ કિરણ રાઠી' },
+        { name: 'Vidhi Kirit Mall', nameGujarati: 'વિધિ કિરીત મલ્લ' }
+      ]
     }
   }
 
@@ -385,10 +443,16 @@ export default function VoterDashboard() {
   }
 
   // Check if Yuva Pankh zone is completed (has winners declared)
-  const completedYuvaPankhZones = ['KUTCH', 'BHUJ_ANJAR', 'ANYA_GUJARAT', 'MUMBAI']
+  const completedYuvaPankhZones = ['ABDASA_LAKHPAT_NAKHATRANA', 'KUTCH', 'BHUJ_ANJAR', 'ANYA_GUJARAT', 'MUMBAI']
   const pendingYuvaPankhZones = ['RAIGAD', 'KARNATAKA_GOA']
-  const isYuvaPankhCompleted = voterData.yuvaPankZone && 
-    completedYuvaPankhZones.includes(voterData.yuvaPankZone.code)
+  // Check if there are any winners declared (for showing winners to all voters)
+  const hasYuvaPankhWinners = Object.keys(yuvaPankhWinners).length > 0
+  // Yuva Pankh is completed if:
+  // 1. Voter has a zone and it's in the completed zones list, OR
+  // 2. Voter has no zone assigned but winners are declared (for not assigned zones)
+  const isYuvaPankhCompleted = (voterData.yuvaPankZone && 
+    completedYuvaPankhZones.includes(voterData.yuvaPankZone.code)) ||
+    (!voterData.yuvaPankZone && hasYuvaPankhWinners)
 
   // Create elections array - show all elections (always show Yuva Pankh, even if not eligible)
   const elections = [
@@ -439,6 +503,7 @@ export default function VoterDashboard() {
 
   // Calculate voting progress based on eligible elections (age-based)
   // Note: Karobari is always counted as "done" since it's already completed
+  // Yuva Pankh is counted as "done" if winners are declared (completed zones or not assigned zones)
   const voterAge = voterData.age || 0
   const eligibleElections = elections.filter(election => {
     // Include Karobari - it's already completed, so always counted as "done"
@@ -446,11 +511,21 @@ export default function VoterDashboard() {
       return election.zone !== null // Include if voter has karobari zone
     }
     // Yuva Pankh: Must be 39 or younger as of August 31, 2025
+    // Include if: (has zone and meets age) OR (no zone but winners declared - for not assigned zones)
     if (election.id === 'yuva-pank') {
+      // If voter has no zone assigned, include if winners are declared (for not assigned zones)
+      // This allows voters without zones to see progress when winners are declared
+      if ((!election.zone || election.zone === null) && hasYuvaPankhWinners) {
+        return true
+      }
+      // If voter has zone, check age eligibility
+      if (!election.zone || election.zone === null) return false // No zone and no winners, exclude
       if (!voterData.dob) return false // Need DOB to check eligibility
       const cutoffDate = new Date('2025-08-31')
       const ageAsOfCutoff = calculateAgeAsOf(voterData.dob, cutoffDate)
-      return ageAsOfCutoff !== null && ageAsOfCutoff >= 18 && ageAsOfCutoff <= 39 && election.zone !== null
+      const meetsAgeRequirement = ageAsOfCutoff !== null && ageAsOfCutoff >= 18 && ageAsOfCutoff <= 39
+      // Include if has zone and meets age requirement
+      return meetsAgeRequirement
     }
     // Trustee: 18+ years
     if (election.id === 'trustees') {
@@ -458,10 +533,25 @@ export default function VoterDashboard() {
     }
     return election.zone !== null
   })
-  // Count votes: Karobari is always counted as voted (done), plus other eligible elections
+  
+  // Count votes: 
+  // - Karobari is always counted as voted (done) if voter has karobari zone (winners declared)
+  // - Yuva Pankh is counted as voted if:
+  //   * The voter's zone is completed (winners declared) OR
+  //   * The voter has no zone assigned but winners are declared (for not assigned zones) OR
+  //   * The voter has actually voted
+  // - Trustee is counted as voted only if voter has actually voted
   const totalVotes = eligibleElections.filter(election => {
     if (election.id === 'karobari-members') {
-      return true // Karobari is always "done"
+      return true // Karobari is always "done" (winners declared for all zones)
+    }
+    if (election.id === 'yuva-pank') {
+      // Count as done if:
+      // - The voter's specific zone is completed (winners declared) OR
+      // - The voter has no zone assigned but winners are declared (for not assigned zones) OR
+      // - The voter has actually voted
+      // Note: isYuvaPankhCompleted now includes the case for not assigned zones
+      return isYuvaPankhCompleted || election.hasVoted
     }
     return election.hasVoted
   }).length
@@ -476,8 +566,8 @@ export default function VoterDashboard() {
             <div className="flex items-center space-x-2 sm:space-x-4">
               <Logo size="sm" />
               <div>
-                <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMS ELECTION 2026</h1>
-                <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
+                <h1 className="text-lg sm:text-2xl font-bold text-gray-900">{content[selectedLanguage].electionTitle}</h1>
+                <p className="text-xs text-gray-600 mt-0.5 font-bold">{content[selectedLanguage].electionCommission}</p>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
@@ -640,7 +730,7 @@ export default function VoterDashboard() {
                           <CheckCircle className="h-3 w-3 mr-1" />
                           {selectedLanguage === 'english' ? 'Voted' : 'મત આપ્યો'}
                         </Badge>
-                      ) : election.id === 'karobari-members' || (election.id === 'yuva-pank' && isYuvaPankhCompleted) ? null : (
+                      ) : election.id === 'karobari-members' || (election.id === 'yuva-pank' && (isYuvaPankhCompleted || hasYuvaPankhWinners)) ? null : (
                         <Badge variant="outline">
                           <Clock className="h-3 w-3 mr-1" />
                           Pending
@@ -671,7 +761,14 @@ export default function VoterDashboard() {
                     </div>
                     
                     <div className="pt-4">
-                      {election.isNotEligible ? (
+                      {election.id === 'yuva-pank' && hasYuvaPankhWinners ? (
+                        <Link href={election.href}>
+                          <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+                            <Eye className="h-4 w-4 mr-2" />
+                            {content[selectedLanguage].viewElectedMembers}
+                          </Button>
+                        </Link>
+                      ) : election.isNotEligible ? (
                         <>
                           <div className="mb-3 p-3 bg-gray-50 border border-gray-200 rounded-md">
                             <div className="flex items-start">
@@ -1156,14 +1253,8 @@ export default function VoterDashboard() {
 
       </main>
 
-      {/* Footer with subtitle */}
-      <footer className="bg-gray-50 border-t mt-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <p className="text-xs text-gray-500 text-center">
-            Election 2026: Shree Panvel Kutchi Maheshwari Mahajan
-          </p>
-        </div>
-      </footer>
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

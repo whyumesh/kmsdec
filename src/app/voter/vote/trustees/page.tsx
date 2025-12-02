@@ -14,6 +14,7 @@ import Link from 'next/link'
 import Logo from '@/components/Logo'
 import CandidateProfileModal from '@/components/CandidateProfileModal'
 import ScreenshotProtection from '@/components/ScreenshotProtection'
+import Footer from '@/components/Footer'
 
 interface Trustee {
   id: string
@@ -230,7 +231,7 @@ export default function TrusteesVotingPage() {
       rule6: 'મિપત્રક દ્વારા મત આપવાનો મર્કલ્પ જરૂરિયાત મુજબ અને સંજોગોને આધીન જાહેર કરવામાં આવશે.',
       rule7: 'કોઈ પણ પરિસ્થિતિ થી લોકડહિમાં મનણવય લેવાનો અધિકાર ચૂંટણી મનયામક પાસે રહેશે જે આખરી અને સર્વને બંધનકારક રહેશે.',
       rule8: 'આગળ વધીને, તમે પુષ્ટિ કરો છો કે તમે બધા નિયમો અને નિયમનો વાંચ્યા છે અને સમજ્યા છે.',
-      electionManagers: 'ચૂંટણી આયોગ',
+      electionManagers: 'ચૂંટણી નિયામક',
       electionManagerEmail: 'ચૂંટણી મનયામક ઈ-મેલ આયડી',
       zoneSeatAllocation: 'ઝોન બેઠક ફાળવણી મર્ભાગ (કુલ બેઠક - ૦૭)',
       totalSeats: 'કુલ બેઠક: ૦૭',
@@ -717,7 +718,7 @@ export default function TrusteesVotingPage() {
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <Logo size="md" />
                 <div>
-                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMS ELECTION 2026</h1>
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMMMS ELECTION 2026</h1>
                   <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
                 </div>
               </div>
@@ -874,7 +875,7 @@ export default function TrusteesVotingPage() {
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <Logo size="md" />
                 <div>
-                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMS ELECTION 2026</h1>
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMMMS ELECTION 2026</h1>
                   <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
                 </div>
               </div>
@@ -1050,7 +1051,7 @@ export default function TrusteesVotingPage() {
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <Logo size="md" />
                 <div>
-                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMS ELECTION 2026</h1>
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMMMS ELECTION 2026</h1>
                   <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
                 </div>
               </div>
@@ -1420,14 +1421,8 @@ export default function TrusteesVotingPage() {
           </div>
         </main>
 
-        {/* Footer with subtitle */}
-        <footer className="bg-gray-50 border-t mt-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <p className="text-xs text-gray-500 text-center">
-              Election 2026: Shree Panvel Kutchi Maheshwari Mahajan
-            </p>
-          </div>
-        </footer>
+        {/* Footer */}
+        <Footer />
       </div>
 
       {/* Trustee Profile Modal */}

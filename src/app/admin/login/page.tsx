@@ -13,6 +13,7 @@ import { Shield, AlertCircle, ArrowLeft, LogIn, Eye, EyeOff } from 'lucide-react
 import Logo from '@/components/Logo'
 import SavedLoginSelector from '@/components/SavedLoginSelector'
 import { saveCredential } from '@/lib/saved-credentials'
+import Footer from '@/components/Footer'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
@@ -67,7 +68,7 @@ export default function AdminLoginPage() {
             <div className="flex items-center space-x-4">
               <Logo size="md" />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">KMS ELECTION 2026</h1>
+                <h1 className="text-2xl font-bold text-gray-900">KMMMS ELECTION 2026</h1>
                 <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
               </div>
             </div>
@@ -178,6 +179,9 @@ export default function AdminLoginPage() {
           </Card>
         </div>
       </div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

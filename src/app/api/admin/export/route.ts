@@ -212,7 +212,7 @@ export async function GET(request: NextRequest) {
       const workbook = new ExcelJS.Workbook()
       
       // Add metadata
-      workbook.creator = 'KMS Election 2026'
+      workbook.creator = 'KMMMS Election 2026'
       workbook.created = new Date()
       workbook.modified = new Date()
 

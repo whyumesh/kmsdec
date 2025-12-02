@@ -12,6 +12,7 @@ import Link from 'next/link'
 import Logo from '@/components/Logo'
 import CandidateProfileModal from '@/components/CandidateProfileModal'
 import ScreenshotProtection from '@/components/ScreenshotProtection'
+import Footer from '@/components/Footer'
 
 interface Candidate {
   id: string
@@ -409,7 +410,7 @@ export default function KarobariMembersVotingPage() {
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <Logo size="md" />
                 <div>
-                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMS ELECTION 2026</h1>
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMMMS ELECTION 2026</h1>
                   <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
                 </div>
               </div>
@@ -576,18 +577,6 @@ export default function KarobariMembersVotingPage() {
   return (
     <>
       <ScreenshotProtection />
-      <div className="fixed inset-0 pointer-events-none select-none z-50 overflow-hidden">
-        <div className="w-full h-full flex flex-wrap">
-          {Array.from({ length: 100 }).map((_, i) => (
-            <div
-              key={i}
-              className="text-gray-400 text-4xl opacity-10 rotate-45 flex items-center justify-center w-1/4 h-32"
-            >
-              {voter.phone} {/* Replace with dynamic user info */}
-            </div>
-          ))}
-        </div>
-      </div>
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <header className="bg-white shadow-sm border-b">
@@ -827,14 +816,8 @@ export default function KarobariMembersVotingPage() {
           )}
         </main>
 
-        {/* Footer with subtitle */}
-        <footer className="bg-gray-50 border-t mt-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <p className="text-xs text-gray-500 text-center">
-              Election 2026: Shree Panvel Kutchi Maheshwari Mahajan
-            </p>
-          </div>
-        </footer>
+        {/* Footer */}
+        <Footer />
       </div>
 
       {/* Candidate Profile Modal */}

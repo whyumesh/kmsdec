@@ -12,6 +12,7 @@ import { AlertCircle, ArrowLeft, LogIn, Eye, EyeOff, Building } from "lucide-rea
 import Logo from "@/components/Logo";
 import SavedLoginSelector from "@/components/SavedLoginSelector";
 import { saveCredential } from "@/lib/saved-credentials";
+import Footer from "@/components/Footer";
 
 export default function KarobariAdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -81,7 +82,7 @@ export default function KarobariAdminLoginPage() {
               <Logo size="md" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  KMS ELECTION 2026
+                  KMMMS ELECTION 2026
                 </h1>
                 <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
               </div>
@@ -203,6 +204,9 @@ export default function KarobariAdminLoginPage() {
           </Card>
         </div>
       </div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

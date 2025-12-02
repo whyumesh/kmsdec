@@ -42,6 +42,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
+import Footer from "@/components/Footer";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { extractFileKeyFromUrl } from "@/lib/file-utils";
 
@@ -543,7 +544,7 @@ export default function AdminDashboard() {
                             <Logo size="sm" />
                             <div>
                                 <h1 className="text-lg sm:text-2xl font-bold text-gray-900">
-                                    KMS ELECTION 2026
+                                    KMMMS ELECTION 2026
                                 </h1>
                                 <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
                             </div>
@@ -944,6 +945,8 @@ export default function AdminDashboard() {
                 </div>
             </main>
 
+            {/* Footer */}
+            <Footer />
         </div>
     );
 }

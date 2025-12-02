@@ -26,6 +26,7 @@ import {
 import Link from 'next/link'
 import Logo from '@/components/Logo'
 import { useAdminAuth } from '@/hooks/useAdminAuth'
+import Footer from '@/components/Footer'
 
 interface CandidateResult {
   id: string
@@ -281,7 +282,7 @@ export default function ElectionResults() {
               <Logo size="sm" />
               <div>
                 <h1 className="text-lg sm:text-2xl font-bold text-gray-900">
-                  KMS ELECTION 2026
+                  KMMMS ELECTION 2026
                 </h1>
                 <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
               </div>
@@ -474,6 +475,9 @@ export default function ElectionResults() {
           </Link>
         </div>
       </main>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }
