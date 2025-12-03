@@ -7,7 +7,7 @@ export default function Footer() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
                     <div>
                         <h3 className="text-lg font-semibold mb-4">
-                            KMMMS ELECTION 2026
+                            SKMMMS Election 2026
                         </h3>
                         <p className="text-gray-400 text-sm">
                             A secure, transparent, and accessible digital
@@ -71,7 +71,7 @@ export default function Footer() {
                         Election 2026: Shree Panvel Kutchi Maheshwari Mahajan
                     </p>
                     <p>
-                        &copy; 2025 KMMMS Election 2026. All rights reserved.
+                        &copy; 2025 SKMMMS Election 2026. All rights reserved.
                     </p>
                     <p className="mt-2">
                         Designed & Developed by{" "}

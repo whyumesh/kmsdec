@@ -8,10 +8,14 @@ const STORJ_BUCKET_NAME = process.env.STORJ_BUCKET_NAME || 'kmselection'
 
 // Gujarati name mappings for Raigad and Karnataka & Goa zone candidates
 const CANDIDATE_NAMES_GUJARATI: Record<string, string> = {
+  // Raigad zone candidates
   'Ram Ashok Karva': 'રામ અશોક કરવા',
   'Dilip Haresh Bhutada': 'દિલીપ હરેશ ભૂતડા',
   'Hardik Mukesh Navdhare': 'હાર્દિક મુકેશ નવધરે',
-  'Jaymin Arvind Bhutada': 'જયમીન અરવિંદ ભુતડા'
+  'Jaymin Arvind Bhutada': 'જયમીન અરવિંદ ભુતડા',
+  // Karnataka & Goa zone candidates
+  'Viral Mahesh Karva': 'વિરલ મહેશ કરવા',
+  'Kaushal Ramesh Laddh': 'કૌશલ રમેશ લધ્ધ'
 }
 
 // Zones that use the Gujarati name mapping

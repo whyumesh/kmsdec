@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useVoterLanguage } from '@/hooks/useVoterLanguage'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -98,7 +99,7 @@ export default function VoterDashboard() {
   const [results, setResults] = useState<ResultsData | null>(null)
   const [isLoadingResults, setIsLoadingResults] = useState(false)
   const [resultsError, setResultsError] = useState<string | null>(null)
-  const [selectedLanguage, setSelectedLanguage] = useState<'english' | 'gujarati'>('english')
+  const { selectedLanguage, setSelectedLanguage } = useVoterLanguage()
   const router = useRouter()
 
   // Language-specific content
@@ -151,7 +152,7 @@ export default function VoterDashboard() {
       averageTurnout: 'Average Turnout',
       totalVoters: 'Total Voters',
       failedToLoad: 'Failed to load election results',
-      electionTitle: 'KMMMS ELECTION 2026',
+      electionTitle: 'SKMMMS Election 2026',
       electionCommission: 'Election Commission : Shree Panvel Kutchi Maheshwari Mahajan',
       yuvaPankhWinners: 'Yuva Pankh Winners',
       yuvaPankhWinnersDescription: 'Elected members for completed zones',
@@ -211,11 +212,11 @@ export default function VoterDashboard() {
       electionTitle: 'શ્રી કચ્છી માહેશ્વરી મધ્યસ્થ મહાજન સમિતિ - ચુંટણી વર્ષ ૨૦૨૬',
       electionCommission: 'ચૂંટણી નિયામક : શ્રી પનવેલ કચ્છી મહેશ્વરી મહાજન',
       yuvaPankhWinners: 'યુવા પાંખ વિજેતાઓ',
-      yuvaPankhWinnersDescription: 'પૂર્ણ થયેલ વિભાગો માટે નિવાચિત સભ્યો',
+      yuvaPankhWinnersDescription: 'પૂર્ણ થયેલ વિભાગો માટે નિર્વાચિત સભ્યો',
       zone: 'વિભાગ',
       winners: 'વિજેતાઓ',
       viewWinners: 'વિજેતાઓ જુઓ',
-      viewElectedMembers: 'નિવાચિત સભ્યો જુઓ'
+      viewElectedMembers: 'નિર્વાચિત સભ્યો જુઓ'
     }
   }
 
@@ -599,19 +600,6 @@ export default function VoterDashboard() {
                 <div className="border-l-4 border-green-500 pl-4">
                   <h5 className="font-medium text-gray-900">{content[selectedLanguage].yuvaPankhZone}</h5>
                   <p className="text-lg text-gray-900">{selectedLanguage === 'english' ? voterData.yuvaPankZone.name : voterData.yuvaPankZone.nameGujarati}</p>
-                  {results?.yuvaPankh?.regions && Array.isArray(results.yuvaPankh.regions) && (() => {
-                    const zoneResult = results.yuvaPankh.regions.find(r => r.zoneId === voterData.yuvaPankZone?.id);
-                    const isCompleted = zoneResult && zoneResult.turnoutPercentage >= 100;
-                    return isCompleted ? (
-                      <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded text-sm">
-                        <div className="flex items-center space-x-2 text-amber-800">
-                          <AlertCircle className="h-4 w-4" />
-                          <span>{content[selectedLanguage].votingCompleted}</span>
-                        </div>
-                        <p className="text-amber-700 mt-1 text-xs">{content[selectedLanguage].votingCompletedMessage}</p>
-                      </div>
-                    ) : null;
-                  })()}
                 </div>
               )}
               {voterData.karobariZone && (
@@ -858,7 +846,7 @@ export default function VoterDashboard() {
                             {election.id === 'karobari-members' ? (
                               <>
                                 <Eye className="h-4 w-4 mr-2" />
-                                {selectedLanguage === 'english' ? 'View Elected Members' : 'નિવાચિત સભ્યો જુઓ'}
+                                {selectedLanguage === 'english' ? 'View Elected Members' : 'નિર્વાચિત સભ્યો જુઓ'}
                                 <ArrowRight className="h-4 w-4 ml-2" />
                               </>
                             ) : (
@@ -1015,24 +1003,24 @@ export default function VoterDashboard() {
                               <Tooltip 
                                 formatter={(value, name, props) => {
                                   const data = props.payload;
+                                  const uniqueVoters = data.uniqueVoters !== undefined 
+                                    ? data.uniqueVoters 
+                                    : Math.round((data.turnout / 100) * data.voters);
+                                  const totalVoters = data.voters || 0;
                                   const status = data.isCompleted 
                                     ? (selectedLanguage === 'english' ? ' (Completed)' : ' (પૂર્ણ)')
                                     : (data.turnout > 0 
                                       ? (selectedLanguage === 'english' ? ' (In Progress)' : ' (પ્રગતિમાં)')
                                       : (selectedLanguage === 'english' ? ' (Pending)' : ' (બાકી)'));
-                                  return [`${value}%${status}`, name === 'turnout' ? 'Voter Turnout' : name];
+                                  return [`${value}%${status}`, `${uniqueVoters} ${selectedLanguage === 'english' ? 'out of' : 'માંથી'} ${totalVoters} ${selectedLanguage === 'english' ? 'voters voted' : 'મતદાતાઓએ મતદાન કર્યું'}`];
                                 }}
                                 labelFormatter={(label, payload) => {
                                   if (payload && payload[0]) {
                                     const data = payload[0].payload;
-                                    // Use uniqueVoters if available, otherwise calculate from turnout percentage
-                                    const uniqueVoters = data.uniqueVoters !== undefined 
-                                      ? data.uniqueVoters 
-                                      : Math.round((data.turnout / 100) * data.voters);
-                                    const voterText = uniqueVoters === 1 
-                                      ? (selectedLanguage === 'english' ? 'voter voted' : 'મતદાતાએ મતદાન કર્યું')
-                                      : (selectedLanguage === 'english' ? 'voters voted' : 'મતદાતાઓએ મતદાન કર્યું');
-                                    return `${data.zoneCode}: ${uniqueVoters} ${voterText}`;
+                                    const zoneName = selectedLanguage === 'english' 
+                                      ? data.name 
+                                      : (results?.yuvaPankh?.regions?.find(r => r.zoneCode === data.zoneCode)?.zoneNameGujarati || data.name);
+                                    return zoneName;
                                   }
                                   return label;
                                 }}
@@ -1173,24 +1161,24 @@ export default function VoterDashboard() {
                             <Tooltip 
                               formatter={(value, name, props) => {
                                 const data = props.payload;
+                                const uniqueVoters = data.uniqueVoters !== undefined 
+                                  ? data.uniqueVoters 
+                                  : Math.round((data.turnout / 100) * data.voters);
+                                const totalVoters = data.voters || 0;
                                 const status = data.isCompleted 
                                   ? (selectedLanguage === 'english' ? ' (Completed)' : ' (પૂર્ણ)')
                                   : (data.turnout > 0 
                                     ? (selectedLanguage === 'english' ? ' (In Progress)' : ' (પ્રગતિમાં)')
                                     : (selectedLanguage === 'english' ? ' (Pending)' : ' (બાકી)'));
-                                return [`${value}%${status}`, name === 'turnout' ? 'Voter Turnout' : name];
+                                return [`${value}%${status}`, `${uniqueVoters} ${selectedLanguage === 'english' ? 'out of' : 'માંથી'} ${totalVoters} ${selectedLanguage === 'english' ? 'voters voted' : 'મતદાતાઓએ મતદાન કર્યું'}`];
                               }}
                               labelFormatter={(label, payload) => {
                                 if (payload && payload[0]) {
                                   const data = payload[0].payload;
-                                  // Use uniqueVoters if available, otherwise calculate from turnout percentage
-                                  const uniqueVoters = data.uniqueVoters !== undefined 
-                                    ? data.uniqueVoters 
-                                    : Math.round((data.turnout / 100) * data.voters);
-                                  const voterText = uniqueVoters === 1 
-                                    ? (selectedLanguage === 'english' ? 'voter voted' : 'મતદાતાએ મતદાન કર્યું')
-                                    : (selectedLanguage === 'english' ? 'voters voted' : 'મતદાતાઓએ મતદાન કર્યું');
-                                  return `${data.zoneCode}: ${uniqueVoters} ${voterText}`;
+                                  const zoneName = selectedLanguage === 'english' 
+                                    ? data.name 
+                                    : (results?.trustee?.regions?.find(r => r.zoneCode === data.zoneCode)?.zoneNameGujarati || data.name);
+                                  return zoneName;
                                 }
                                 return label;
                               }}

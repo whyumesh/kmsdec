@@ -44,7 +44,7 @@ export default function HomePage() {
                                 <Logo size="sm" />
                                 <div>
                                     <h1 className="text-lg sm:text-2xl font-bold text-gray-900">
-                                        KMMMS ELECTION 2026
+                                        SKMMMS Election 2026
                                     </h1>
                                     <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
                                 </div>
@@ -477,7 +477,7 @@ export default function HomePage() {
                                 Election 2026: Shree Panvel Kutchi Maheshwari Mahajan
                             </p>
                             <p>
-                                &copy; 2025 KMMMS Election 2026. All rights reserved.
+                                &copy; 2025 SKMMMS Election 2026. All rights reserved.
                             </p>
                             <p className="mt-2">
                                 Designed & Developed by{" "}

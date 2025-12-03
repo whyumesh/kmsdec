@@ -282,7 +282,7 @@ export default function ElectionResults() {
               <Logo size="sm" />
               <div>
                 <h1 className="text-lg sm:text-2xl font-bold text-gray-900">
-                  KMMMS ELECTION 2026
+                  SKMMMS Election 2026
                 </h1>
                 <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
               </div>

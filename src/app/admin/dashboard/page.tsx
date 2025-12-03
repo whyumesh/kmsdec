@@ -45,6 +45,16 @@ import Logo from "@/components/Logo";
 import Footer from "@/components/Footer";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { extractFileKeyFromUrl } from "@/lib/file-utils";
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    Cell
+} from '@/components/ChartsWrapper';
 
 interface CommitteeStats {
     total: number;
@@ -98,6 +108,46 @@ interface DashboardStats {
     voterStats?: VoterStatistics;
 }
 
+interface RegionTurnout {
+    zoneId: string;
+    zoneCode: string;
+    zoneName: string;
+    zoneNameGujarati: string;
+    seats: number;
+    totalVoters: number;
+    totalVotes: number;
+    uniqueVoters?: number;
+    turnoutPercentage: number;
+    actualVotes?: number;
+    notaVotes?: number;
+}
+
+interface ResultsData {
+    karobari?: {
+        name: string;
+        regions: RegionTurnout[];
+        totalRegions: number;
+        totalVoters: number;
+        totalVotes: number;
+    };
+    trustee: {
+        name: string;
+        regions: RegionTurnout[];
+        totalRegions: number;
+        totalVoters: number;
+        totalVotes: number;
+    };
+    yuvaPankh: {
+        name: string;
+        regions: RegionTurnout[];
+        totalRegions: number;
+        totalVoters: number;
+        totalVotes: number;
+    };
+    totalVotersInSystem?: number;
+    timestamp: string;
+}
+
 interface RecentCandidate {
     id: string;
     name: string;
@@ -141,6 +191,8 @@ export default function AdminDashboard() {
     const [error, setError] = useState<string | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
+    const [results, setResults] = useState<ResultsData | null>(null);
+    const [isLoadingResults, setIsLoadingResults] = useState(false);
     const router = useRouter();
 
     // Move useEffect before early returns
@@ -148,8 +200,24 @@ export default function AdminDashboard() {
         // Only fetch data if authenticated and admin
         if (isAuthenticated && isAdmin && !authLoading) {
             fetchDashboardData();
+            fetchResults();
         }
     }, [isAuthenticated, isAdmin, authLoading]);
+
+    const fetchResults = async () => {
+        setIsLoadingResults(true);
+        try {
+            const response = await fetch('/api/admin/results');
+            if (response.ok) {
+                const data = await response.json();
+                setResults(data);
+            }
+        } catch (error) {
+            console.error('Error fetching results:', error);
+        } finally {
+            setIsLoadingResults(false);
+        }
+    };
 
     // Show loading state while checking authentication
     if (authLoading) {
@@ -544,7 +612,7 @@ export default function AdminDashboard() {
                             <Logo size="sm" />
                             <div>
                                 <h1 className="text-lg sm:text-2xl font-bold text-gray-900">
-                                    KMMMS ELECTION 2026
+                                    SKMMMS Election 2026
                                 </h1>
                                 <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
                             </div>
@@ -878,6 +946,257 @@ export default function AdminDashboard() {
 
                 {/* Karobari Samiti Section - Hidden from UI */}
 
+
+                {/* Election Results Charts */}
+                {results && (
+                    <div className="grid grid-cols-1 gap-8 mb-8">
+                        {/* Yuva Pankh Members Chart */}
+                        {results.yuvaPankh && results.yuvaPankh.regions && Array.isArray(results.yuvaPankh.regions) && results.yuvaPankh.regions.length > 0 && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center space-x-2">
+                                        <BarChart3 className="h-5 w-5 text-purple-600" />
+                                        <span>Yuva Pankh Members - Zone Wise Voter Turnout</span>
+                                    </CardTitle>
+                                    <CardDescription>
+                                        Regional voter participation for Yuva Pankh Members election
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-6">
+                                        {/* Recharts Bar Chart */}
+                                        <div className="h-80 w-full">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <BarChart
+                                                    data={results.yuvaPankh.regions.map(region => {
+                                                        const turnout = Number(region.turnoutPercentage) || 0;
+                                                        return {
+                                                            name: region.zoneName,
+                                                            turnout: turnout,
+                                                            votes: region.totalVotes || 0,
+                                                            voters: region.totalVoters || 0,
+                                                            uniqueVoters: region.uniqueVoters !== undefined ? region.uniqueVoters : (region.totalVotes || 0),
+                                                            zoneCode: region.zoneCode || '',
+                                                            zoneNameGujarati: region.zoneNameGujarati || '',
+                                                            isCompleted: turnout >= 100
+                                                        };
+                                                    })}
+                                                    margin={{
+                                                        top: 20,
+                                                        right: 30,
+                                                        left: 20,
+                                                        bottom: 60,
+                                                    }}
+                                                >
+                                                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                                    <XAxis 
+                                                        dataKey="name" 
+                                                        angle={-45}
+                                                        textAnchor="end"
+                                                        height={80}
+                                                        fontSize={12}
+                                                        stroke="#666"
+                                                    />
+                                                    <YAxis 
+                                                        label={{ value: 'Voter Turnout %', angle: -90, position: 'insideLeft' }}
+                                                        fontSize={12}
+                                                        stroke="#666"
+                                                        domain={[0, 100]}
+                                                        ticks={[0, 25, 50, 75, 100]}
+                                                    />
+                                                    <Tooltip 
+                                                        formatter={(value, name, props) => {
+                                                            const data = props.payload;
+                                                            const uniqueVoters = data.uniqueVoters !== undefined 
+                                                                ? data.uniqueVoters 
+                                                                : Math.round((data.turnout / 100) * data.voters);
+                                                            const totalVoters = data.voters || 0;
+                                                            const status = data.isCompleted 
+                                                                ? ' (Completed)'
+                                                                : (data.turnout > 0 
+                                                                    ? ' (In Progress)'
+                                                                    : ' (Pending)');
+                                                            return [`${value}%${status}`, `${uniqueVoters} out of ${totalVoters} voters voted`];
+                                                        }}
+                                                        labelFormatter={(label, payload) => {
+                                                            if (payload && payload[0]) {
+                                                                const data = payload[0].payload;
+                                                                return data.name;
+                                                            }
+                                                            return label;
+                                                        }}
+                                                        contentStyle={{
+                                                            backgroundColor: '#fff',
+                                                            border: '1px solid #e5e7eb',
+                                                            borderRadius: '8px',
+                                                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                                                        }}
+                                                    />
+                                                    <Bar dataKey="turnout" radius={[4, 4, 0, 0]}>
+                                                        {results.yuvaPankh.regions.map((region, index) => {
+                                                            const turnout = Number(region.turnoutPercentage) || 0;
+                                                            return (
+                                                                <Cell 
+                                                                    key={`cell-${index}`} 
+                                                                    fill={turnout >= 100 ? '#10b981' : turnout > 0 ? '#8b5cf6' : '#e5e7eb'} 
+                                                                />
+                                                            );
+                                                        })}
+                                                    </Bar>
+                                                </BarChart>
+                                            </ResponsiveContainer>
+                                        </div>
+                                        
+                                        {/* Summary Statistics */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                                            <div>
+                                                <div className="text-xl sm:text-2xl font-bold text-purple-600">
+                                                    {results.yuvaPankh.totalRegions}
+                                                </div>
+                                                <div className="text-xs sm:text-sm text-gray-500">Total Regions</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-xl sm:text-2xl font-bold text-green-600">
+                                                    {results.yuvaPankh.regions.length > 0 ? Math.max(...results.yuvaPankh.regions.map(r => Number(r.turnoutPercentage) || 0)).toFixed(1) : '0'}%
+                                                </div>
+                                                <div className="text-xs sm:text-sm text-gray-500">Highest Turnout</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-xl sm:text-2xl font-bold text-purple-600">
+                                                    {results.yuvaPankh.totalVoters.toLocaleString()}
+                                                </div>
+                                                <div className="text-xs sm:text-sm text-gray-500">Total Voters</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+
+                        {/* Trustee Members Chart */}
+                        {results.trustee && results.trustee.regions && Array.isArray(results.trustee.regions) && results.trustee.regions.length > 0 && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center space-x-2">
+                                        <BarChart3 className="h-5 w-5 text-green-600" />
+                                        <span>Trustee Members - Zone Wise Voter Turnout</span>
+                                    </CardTitle>
+                                    <CardDescription>
+                                        Regional voter participation for Trustee Members election
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-6">
+                                        {/* Recharts Bar Chart */}
+                                        <div className="h-80 w-full">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <BarChart
+                                                    data={results.trustee.regions.map(region => {
+                                                        const turnout = Number(region.turnoutPercentage) || 0;
+                                                        return {
+                                                            name: region.zoneName,
+                                                            turnout: turnout,
+                                                            votes: region.totalVotes || 0,
+                                                            voters: region.totalVoters || 0,
+                                                            uniqueVoters: region.uniqueVoters !== undefined ? region.uniqueVoters : (region.totalVotes || 0),
+                                                            zoneCode: region.zoneCode || '',
+                                                            zoneNameGujarati: region.zoneNameGujarati || '',
+                                                            isCompleted: turnout >= 100
+                                                        };
+                                                    })}
+                                                    margin={{
+                                                        top: 20,
+                                                        right: 30,
+                                                        left: 20,
+                                                        bottom: 60,
+                                                    }}
+                                                >
+                                                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                                    <XAxis 
+                                                        dataKey="name" 
+                                                        angle={-45}
+                                                        textAnchor="end"
+                                                        height={80}
+                                                        fontSize={12}
+                                                        stroke="#666"
+                                                    />
+                                                    <YAxis 
+                                                        label={{ value: 'Voter Turnout %', angle: -90, position: 'insideLeft' }}
+                                                        fontSize={12}
+                                                        stroke="#666"
+                                                        domain={[0, 100]}
+                                                        ticks={[0, 25, 50, 75, 100]}
+                                                    />
+                                                    <Tooltip 
+                                                        formatter={(value, name, props) => {
+                                                            const data = props.payload;
+                                                            const uniqueVoters = data.uniqueVoters !== undefined 
+                                                                ? data.uniqueVoters 
+                                                                : Math.round((data.turnout / 100) * data.voters);
+                                                            const totalVoters = data.voters || 0;
+                                                            const status = data.isCompleted 
+                                                                ? ' (Completed)'
+                                                                : (data.turnout > 0 
+                                                                    ? ' (In Progress)'
+                                                                    : ' (Pending)');
+                                                            return [`${value}%${status}`, `${uniqueVoters} out of ${totalVoters} voters voted`];
+                                                        }}
+                                                        labelFormatter={(label, payload) => {
+                                                            if (payload && payload[0]) {
+                                                                const data = payload[0].payload;
+                                                                return data.name;
+                                                            }
+                                                            return label;
+                                                        }}
+                                                        contentStyle={{
+                                                            backgroundColor: '#fff',
+                                                            border: '1px solid #e5e7eb',
+                                                            borderRadius: '8px',
+                                                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                                                        }}
+                                                    />
+                                                    <Bar dataKey="turnout" radius={[4, 4, 0, 0]}>
+                                                        {results.trustee.regions.map((region, index) => {
+                                                            const turnout = Number(region.turnoutPercentage) || 0;
+                                                            return (
+                                                                <Cell 
+                                                                    key={`cell-${index}`} 
+                                                                    fill={turnout >= 100 ? '#10b981' : turnout > 0 ? '#3b82f6' : '#e5e7eb'} 
+                                                                />
+                                                            );
+                                                        })}
+                                                    </Bar>
+                                                </BarChart>
+                                            </ResponsiveContainer>
+                                        </div>
+                                        
+                                        {/* Summary Statistics */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                                            <div>
+                                                <div className="text-xl sm:text-2xl font-bold text-green-600">
+                                                    {results.trustee.totalRegions}
+                                                </div>
+                                                <div className="text-xs sm:text-sm text-gray-500">Total Regions</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-xl sm:text-2xl font-bold text-green-600">
+                                                    {Math.max(...results.trustee.regions.map(r => Number(r.turnoutPercentage) || 0)).toFixed(1)}%
+                                                </div>
+                                                <div className="text-xs sm:text-sm text-gray-500">Highest Turnout</div>
+                                            </div>
+                                            <div>
+                                                <div className="text-xl sm:text-2xl font-bold text-green-600">
+                                                    {results.trustee.totalVoters.toLocaleString()}
+                                                </div>
+                                                <div className="text-xs sm:text-sm text-gray-500">Total Voters</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
+                )}
 
                 {/* Latest Nominations by Committee */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

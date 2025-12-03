@@ -16,7 +16,7 @@ export default function PrivacyPolicyPage() {
               <Logo size="sm" />
               <div>
                 <h1 className="text-lg sm:text-2xl font-bold text-gray-900">
-                  KMMMS ELECTION 2026
+                  SKMMMS Election 2026
                 </h1>
                 <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
               </div>
@@ -45,7 +45,7 @@ export default function PrivacyPolicyPage() {
             <section>
               <h3 className="text-xl font-semibold text-gray-900 mb-3">1. Introduction</h3>
               <p className="mb-3">
-                KMMMS Election 2026 ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our online voting platform.
+                SKMMMS Election 2026 ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our online voting platform.
               </p>
             </section>
 
@@ -375,7 +375,7 @@ export default function PrivacyPolicyPage() {
               <p className="text-xs text-gray-500 mb-2">
                 Election 2026: Shree Panvel Kutchi Maheshwari Mahajan
               </p>
-              <p>&copy; 2025 KMMMS Election 2026. All rights reserved.</p>
+              <p>&copy; 2025 SKMMMS Election 2026. All rights reserved.</p>
             </p>
             <p className="mt-2">
               Designed & Developed by{" "}

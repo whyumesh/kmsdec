@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useVoterLanguage } from '@/hooks/useVoterLanguage'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -64,7 +65,7 @@ export default function YuvaPankVotingPage() {
   const [selectedCandidateProfile, setSelectedCandidateProfile] = useState<Candidate | null>(null)
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({})
-  const [selectedLanguage, setSelectedLanguage] = useState<'english' | 'gujarati'>('english')
+  const { selectedLanguage, setSelectedLanguage } = useVoterLanguage()
   const [rulesAccepted, setRulesAccepted] = useState(false)
   const router = useRouter()
 
@@ -650,7 +651,7 @@ export default function YuvaPankVotingPage() {
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <Logo size="md" />
                 <div>
-                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMMMS ELECTION 2026</h1>
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">SKMMMS Election 2026</h1>
                   <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
                 </div>
               </div>
@@ -813,7 +814,7 @@ export default function YuvaPankVotingPage() {
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <Logo size="md" />
                 <div>
-                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMMMS ELECTION 2026</h1>
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">SKMMMS Election 2026</h1>
                   <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
                 </div>
               </div>
@@ -876,6 +877,12 @@ export default function YuvaPankVotingPage() {
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-6 h-6 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-semibold text-xs mt-0.5">
+                    5
+                  </div>
+                  <p>{content[selectedLanguage].rule5}</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-6 h-6 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-semibold text-xs mt-0.5">
                     6
                   </div>
                   <p>{content[selectedLanguage].rule6}</p>
@@ -922,7 +929,7 @@ export default function YuvaPankVotingPage() {
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <Logo size="md" />
                 <div>
-                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMMMS ELECTION 2026</h1>
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">SKMMMS Election 2026</h1>
                   <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
                 </div>
               </div>

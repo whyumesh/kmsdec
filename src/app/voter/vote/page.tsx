@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useVoterLanguage } from '@/hooks/useVoterLanguage'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -87,7 +88,7 @@ export default function UnifiedVotingPage() {
   const [success, setSuccess] = useState(false)
   const [voter, setVoter] = useState<any>(null)
   const [showNotaWarning, setShowNotaWarning] = useState(false)
-  const [selectedLanguage, setSelectedLanguage] = useState<'english' | 'gujarati'>('english')
+  const { selectedLanguage, setSelectedLanguage } = useVoterLanguage()
   const router = useRouter()
 
   // Language-specific content
@@ -691,7 +692,7 @@ export default function UnifiedVotingPage() {
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <Logo size="sm" />
                 <div>
-                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMMMS ELECTION 2026</h1>
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">SKMMMS Election 2026</h1>
                   <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
                   <p className="text-xs sm:text-sm text-gray-600 mt-1">Unified Voting System</p>
                 </div>

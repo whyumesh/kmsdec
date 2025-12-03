@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 
     // Create Excel workbook
     const workbook = new ExcelJS.Workbook()
-    workbook.creator = 'KMMMS Election 2026'
+    workbook.creator = 'SKMMMS Election 2026'
     workbook.created = new Date()
     workbook.modified = new Date()
 

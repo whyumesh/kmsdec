@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { useVoterLanguage } from '@/hooks/useVoterLanguage'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -67,7 +68,7 @@ export default function TrusteesVotingPage() {
   const [selectedCandidateProfile, setSelectedCandidateProfile] = useState<Trustee | null>(null)
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [photoUrls, setPhotoUrls] = useState<Record<string, string>>({})
-  const [selectedLanguage, setSelectedLanguage] = useState<'english' | 'gujarati'>('english')
+  const { selectedLanguage, setSelectedLanguage } = useVoterLanguage()
   const [rulesAccepted, setRulesAccepted] = useState(false)
   const searchInputRefs = useRef<Record<string, HTMLInputElement | null>>({})
   const router = useRouter()
@@ -718,7 +719,7 @@ export default function TrusteesVotingPage() {
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <Logo size="md" />
                 <div>
-                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMMMS ELECTION 2026</h1>
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">SKMMMS Election 2026</h1>
                   <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
                 </div>
               </div>
@@ -875,7 +876,7 @@ export default function TrusteesVotingPage() {
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <Logo size="md" />
                 <div>
-                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMMMS ELECTION 2026</h1>
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">SKMMMS Election 2026</h1>
                   <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
                 </div>
               </div>
@@ -1051,7 +1052,7 @@ export default function TrusteesVotingPage() {
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <Logo size="md" />
                 <div>
-                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">KMMMS ELECTION 2026</h1>
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900">SKMMMS Election 2026</h1>
                   <p className="text-xs text-gray-600 mt-0.5 font-bold">Election Commission : Shree Panvel Kutchi Maheshwari Mahajan</p>
                 </div>
               </div>
