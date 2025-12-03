@@ -83,6 +83,7 @@ export async function GET(request: NextRequest) {
         phone: voter.user?.phone || voter.phone,
         region: voter.region, // Include region for eligibility checks
         age: voter.user?.age || voter.age, // Include age for eligibility checks
+        dob: voter.user?.dateOfBirth || voter.dob || null, // Include DOB for age eligibility checks
         zone: voter.zone, // Keep for backward compatibility
         yuvaPankZone: yuvaPankZoneWithStatus, // Include all zones with frozen status
         karobariZone: karobariZoneWithStatus, // Mark all Karobari zones as frozen/completed

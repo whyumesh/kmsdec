@@ -37,6 +37,27 @@ const nextConfig = {
       '@radix-ui/react-tabs',
       '@radix-ui/react-toast'
     ],
+    // Exclude unnecessary files from function bundle to reduce size
+    outputFileTracingExcludes: {
+      '*': [
+        'node_modules/@swc/**/*',
+        'node_modules/@esbuild/**/*',
+        'node_modules/terser/**/*',
+        'node_modules/webpack/**/*',
+        'node_modules/.cache/**/*',
+        'node_modules/.prisma/client/libquery_engine-*',
+        'node_modules/@prisma/engines/**/*',
+        'node_modules/prisma/migrations/**/*',
+        'node_modules/prisma/**/*.md',
+        'node_modules/prisma/**/*.txt',
+        '**/*.test.*',
+        '**/*.spec.*',
+        '**/__tests__/**/*',
+        '**/test/**/*',
+        '**/tests/**/*',
+        '**/*.map',
+      ],
+    },
     serverComponentsExternalPackages: [
       'prisma', 
       '@prisma/client',

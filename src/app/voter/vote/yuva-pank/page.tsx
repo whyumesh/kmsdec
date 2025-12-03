@@ -344,6 +344,19 @@ export default function YuvaPankVotingPage() {
           return
         }
 
+        // Fisher-Yates shuffle algorithm to randomize candidates
+        const shuffleArray = (array: any[]) => {
+          const shuffled = [...array]
+          for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+          }
+          return shuffled
+        }
+
+        // Randomize candidates before setting them
+        const randomizedCandidates = shuffleArray(data.candidates)
+
         // Since all candidates are from the same zone, create a single zone entry
         const zone: Zone = {
           id: voterZone.id,
@@ -351,7 +364,7 @@ export default function YuvaPankVotingPage() {
           nameGujarati: voterZone.nameGujarati,
           code: voterZone.code,
           seats: voterZone.seats,
-          candidates: data.candidates
+          candidates: randomizedCandidates
         }
 
         setZones([zone])
@@ -360,7 +373,7 @@ export default function YuvaPankVotingPage() {
         const urls: Record<string, string> = {}
         const photoPromises: Promise<void>[] = []
         
-        for (const candidate of data.candidates) {
+        for (const candidate of randomizedCandidates) {
           if (candidate.photoFileKey) {
             const promise = (async () => {
               try {

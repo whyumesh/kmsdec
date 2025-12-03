@@ -28,6 +28,7 @@ interface VoterData {
   phone: string
   region?: string
   age?: number
+  dob?: string | null
   zone: {
     id: string
     name: string
@@ -502,21 +503,30 @@ export default function VoterDashboard() {
     }] : [])
   ]
 
-  // Calculate voting progress - always 3 elections (Karobari, Yuva Pankh, Trustee)
-  // Count votes based on actual voting status
+  // Calculate voting progress
+  // For voters not eligible for Yuva Pankh (based on age): show 1/2 format (Karobari + Trustee only)
+  // For voters eligible for Yuva Pankh: show X/3 format (Karobari + Yuva Pankh + Trustee)
   const voterAge = voterData.age || 0
+  
+  // Check age eligibility for Yuva Pankh (must be 39 or younger as of August 31, 2025)
+  const dob = voterData.dob
+  const cutoffDate = new Date('2025-08-31')
+  const ageAsOfCutoff = dob ? calculateAgeAsOf(dob, cutoffDate) : null
+  const isAgeEligibleForYuvaPankh = ageAsOfCutoff !== null && ageAsOfCutoff >= 18 && ageAsOfCutoff <= 39
   
   // Check if voter has any eligible elections
   const hasKarobari = voterData.karobariZone !== null
-  const hasYuvaPankh = voterData.yuvaPankZone !== null
+  const hasYuvaPankh = voterData.yuvaPankZone !== null && isAgeEligibleForYuvaPankh
   const hasTrustee = voterData.trusteeZone !== null && voterAge >= 18
   
-  // Total elections is 3 if voter has any eligible elections, otherwise 0
-  const totalElections = (hasKarobari || hasYuvaPankh || hasTrustee) ? 3 : 0
+  // Total elections: 2 if not age-eligible for Yuva Pankh, 3 if age-eligible
+  const totalElections = isAgeEligibleForYuvaPankh 
+    ? (hasKarobari || hasYuvaPankh || hasTrustee ? 3 : 0)
+    : (hasKarobari || hasTrustee ? 2 : 0)
   
   // Count votes:
   // - Karobari: always counted as done (1) if voter has karobari zone
-  // - Yuva Pankh: counted as done if voted OR if zone is completed (not Raigad/Karnataka pending zones)
+  // - Yuva Pankh: counted as done if voted OR if zone is completed (not Raigad/Karnataka pending zones) - only if age-eligible
   // - Trustee: counted as done if voted
   let totalVotes = 0
   
@@ -525,8 +535,8 @@ export default function VoterDashboard() {
     totalVotes += 1
   }
   
-  // Yuva Pankh: done if voted OR if zone is completed (not Raigad/Karnataka)
-  if (hasYuvaPankh) {
+  // Yuva Pankh: done if voted OR if zone is completed (not Raigad/Karnataka) - only count if age-eligible
+  if (hasYuvaPankh && isAgeEligibleForYuvaPankh) {
     const isRaigadOrKarnataka = voterData.yuvaPankZone?.code === 'RAIGAD' || voterData.yuvaPankZone?.code === 'KARNATAKA_GOA'
     if (voterData.hasVoted.yuvaPank || (!isRaigadOrKarnataka && isYuvaPankhCompleted)) {
       totalVotes += 1
