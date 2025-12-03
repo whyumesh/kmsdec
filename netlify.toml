@@ -1,8 +1,8 @@
 # Netlify Configuration for Next.js 14
 [build]
-  command = "npm install && npm run build"
+  command = "npm install && npx prisma generate && npm run build"
   publish = ".next"
-  # Note: prisma generate runs automatically via postinstall hook in package.json
+  # Explicitly run prisma generate to ensure binary targets are included
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
@@ -24,9 +24,12 @@
 # large dependencies from being included in the function bundle
 [functions]
   node_bundler = "esbuild"
-  # Exclude all files - let Netlify handle dependencies at runtime
-  # This prevents large files from being bundled into the function
-  included_files = []
+  # Include Prisma binaries - required for runtime database queries
+  # These binaries must be included for Prisma Client to work in Netlify functions
+  included_files = [
+    "node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node",
+    "node_modules/@prisma/engines/**/libquery_engine-rhel-openssl-3.0.x.so.node"
+  ]
 
 # Required environment variables (set these in Netlify dashboard under Site settings → Environment variables)
 # See NETLIFY_ENV_VARIABLES.md for complete checklist

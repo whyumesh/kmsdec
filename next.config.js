@@ -50,8 +50,21 @@ const nextConfig = {
         'node_modules/terser/**/*',
         'node_modules/webpack/**/*',
         'node_modules/.cache/**/*',
-        'node_modules/.prisma/client/libquery_engine-*',
-        'node_modules/@prisma/engines/**/*',
+        // Exclude Prisma engines we don't need, but KEEP rhel-openssl-3.0.x for Netlify
+        // Exclude other platform engines to reduce bundle size
+        'node_modules/.prisma/client/libquery_engine-linux-x64-openssl-1.0.x*',
+        'node_modules/.prisma/client/libquery_engine-linux-x64-openssl-1.1.x*',
+        'node_modules/.prisma/client/libquery_engine-darwin*',
+        'node_modules/.prisma/client/libquery_engine-windows*',
+        'node_modules/.prisma/client/libquery_engine-debian-openssl-3.0.x*',
+        // Keep rhel-openssl-3.0.x - DO NOT exclude this one
+        // Exclude other engine types from @prisma/engines (but keep rhel)
+        'node_modules/@prisma/engines/libquery_engine-linux-x64-openssl-1.0.x*',
+        'node_modules/@prisma/engines/libquery_engine-linux-x64-openssl-1.1.x*',
+        'node_modules/@prisma/engines/libquery_engine-darwin*',
+        'node_modules/@prisma/engines/libquery_engine-windows*',
+        'node_modules/@prisma/engines/libquery_engine-debian-openssl-3.0.x*',
+        // Keep: libquery_engine-rhel-openssl-3.0.x (needed for Netlify)
         'node_modules/prisma/migrations/**/*',
         'node_modules/prisma/**/*.md',
         'node_modules/prisma/**/*.txt',
