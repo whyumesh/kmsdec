@@ -966,7 +966,7 @@ export default function TrusteesVotingPage() {
               <div className="pt-6 border-t border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">{content[selectedLanguage].electionManagers}</h3>
                 <div className="space-y-2 text-sm text-gray-700">
-                  <p><strong>Mukeshbhai Ravjbhai Navdhare</strong></p>
+                  <p><strong>Mukeshbhai Ravjibhai Navdhare</strong></p>
                   <p><strong>Deepakbhai Muljibhai Bhutada</strong></p>
                 </div>
                 <div className="mt-3">
@@ -988,12 +988,12 @@ export default function TrusteesVotingPage() {
                   <div className="grid grid-cols-3 gap-2 text-gray-700 min-w-[500px] sm:min-w-0">
                     <div className="text-xs sm:text-sm">01 {selectedLanguage === 'english' ? 'Raigad' : 'રાયગઢ'}</div>
                     <div className="text-xs sm:text-sm">01</div>
-                    <div className="text-xs">{selectedLanguage === 'english' ? 'Raigad (Kharghar included), Pune, Ratnagiri, Kolhapur, Sangli (All districts)' : 'રાયગઢ(ખારઘર સહિત),પુણે,રત્નાગીરી,કોલ્હાપુર,સાંગલી (સર્વ જિલ્લા)'}</div>
+                    <div className="text-xs">{selectedLanguage === 'english' ? 'Raigad (Kharghar included), Pune, Ratnagiri, Kolhapur, Sangli, Satara (All districts)' : 'રાયગઢ(ખારઘર સહિત),પુણે,રત્નાગીરી,કોલ્હાપુર,સાંગલી,સાતારા (સર્વ જિલ્લા)'}</div>
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-gray-700 min-w-[500px] sm:min-w-0">
                     <div className="text-xs sm:text-sm">02 {selectedLanguage === 'english' ? 'Mumbai' : 'મુંબઈ'}</div>
                     <div className="text-xs sm:text-sm">02</div>
-                    <div className="text-xs">{selectedLanguage === 'english' ? 'Mumbai, Thane district, Navi Mumbai, Nashik, Ahmednagar district, Nagpur, Chandrapur, Madhya Pradesh, Rajasthan, West Bengal, Odisha, Haryana, and entire country' : 'મુંબઈ,થાણા જિલ્લો,નવી મુંબઈ,નાસિક,અહેમદનગર જિલ્લો,નાગપુર,ચંદ્રપુર,મધ્યપ્રદેશ,રાજસ્થાન,પશ્ચિમ બંગાળ,ઓડિશા,હરિયાણા,અને સમગ્ર દેશ'}</div>
+                    <div className="text-xs">{selectedLanguage === 'english' ? 'Mumbai, Thane district, Navi Mumbai, Nashik, Ahmednagar district, Nagpur, Chandrapur, Madhya Pradesh, Rajasthan, West Bengal, Odisha, Haryana, Overseas area, and entire country' : 'મુંબઈ,થાણા જિલ્લો,નવી મુંબઈ,નાસિક,અહેમદનગર જિલ્લો,નાગપુર,ચંદ્રપુર,મધ્યપ્રદેશ,રાજસ્થાન,પશ્ચિમ બંગાળ,ઓડિશા,હરિયાણા,વિદેશી વિસ્તાર,અને સમગ્ર દેશ'}</div>
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-gray-700 min-w-[500px] sm:min-w-0">
                     <div className="text-xs sm:text-sm">03 {selectedLanguage === 'english' ? 'Karnataka & Goa' : 'કર્ણાટક,ગોવા'}</div>
@@ -1166,12 +1166,12 @@ export default function TrusteesVotingPage() {
               const getZoneArea = (zoneCode: string) => {
                 const zoneAreas: Record<string, { en: string; gu: string }> = {
                   'RAIGAD': {
-                    en: 'Raigad (Kharghar included), Pune, Ratnagiri, Kolhapur, Sangli (All districts)',
-                    gu: 'રાયગઢ(ખારઘર સહિત),પુણે,રત્નાગીરી,કોલ્હાપુર,સાંગલી (સર્વ જિલ્લા)'
+                    en: 'Raigad (Kharghar included), Pune, Ratnagiri, Kolhapur, Sangli, Satara (All districts)',
+                    gu: 'રાયગઢ(ખારઘર સહિત),પુણે,રત્નાગીરી,કોલ્હાપુર,સાંગલી,સાતારા (સર્વ જિલ્લા)'
                   },
                   'MUMBAI': {
-                    en: 'Mumbai, Thane district, Navi Mumbai, Nashik, Ahmednagar district, Nagpur, Chandrapur, Madhya Pradesh, Rajasthan, West Bengal, Odisha, Haryana, and entire country',
-                    gu: 'મુંબઈ,થાણા જિલ્લો,નવી મુંબઈ,નાસિક,અહેમદનગર જિલ્લો,નાગપુર,ચંદ્રપુર,મધ્યપ્રદેશ,રાજસ્થાન,પશ્ચિમ બંગાળ,ઓડિશા,હરિયાણા,અને સમગ્ર દેશ'
+                    en: 'Mumbai, Thane district, Navi Mumbai, Nashik, Ahmednagar district, Nagpur, Chandrapur, Madhya Pradesh, Rajasthan, West Bengal, Odisha, Haryana, Overseas area, and entire country',
+                    gu: 'મુંબઈ,થાણા જિલ્લો,નવી મુંબઈ,નાસિક,અહેમદનગર જિલ્લો,નાગપુર,ચંદ્રપુર,મધ્યપ્રદેશ,રાજસ્થાન,પશ્ચિમ બંગાળ,ઓડિશા,હરિયાણા,વિદેશી વિસ્તાર,અને સમગ્ર દેશ'
                   },
                   'KARNATAKA_GOA': {
                     en: 'Karnataka and Goa states',

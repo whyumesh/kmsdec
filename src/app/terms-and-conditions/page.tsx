@@ -314,7 +314,7 @@ export default function TermsAndConditionsPage() {
                 rel="noopener noreferrer"
                 className="text-blue-400 hover:text-blue-300 hover:underline transition-colors font-semibold"
               >
-                Parth Gagdani, Team FullStack (Thane)
+                Parth Chetna Piyush Gagdani, Team FullStack (Thane)
               </Link>
             </p>
           </div>
