@@ -168,27 +168,33 @@ find node_modules -type d -empty -delete 2>/dev/null || true
 
 print_success "Heavy and unused files removed"
 
-# Step 8: Clean .next directory
-print_info "Step 8: Cleaning .next directory..."
+# Step 8: Minimal .next cleanup (preserve ALL files needed by Netlify plugin)
+print_info "Step 8: Minimal .next cleanup (preserving all plugin-required files)..."
 if [ -d ".next" ]; then
-    # Remove all .map files from .next
+    # Only remove source maps (safe - not needed at runtime)
     find .next -name "*.map" -type f -delete 2>/dev/null || true
     print_info "  Removed .map files from .next"
     
-    # Remove .next/cache directory
-    rm -rf .next/cache 2>/dev/null || true
-    print_info "  Removed .next/cache directory"
+    # Remove cache directory (safe - rebuilds on deploy)
+    if [ -d ".next/cache" ]; then
+        rm -rf .next/cache 2>/dev/null || true
+        print_info "  Removed .next/cache directory"
+    fi
     
-    # Remove .next/standalone if it exists (not needed for Netlify)
-    rm -rf .next/standalone 2>/dev/null || true
-    print_info "  Removed .next/standalone directory"
+    # DO NOT remove:
+    # - .next/BUILD_ID (required by plugin)
+    # - .next/routes-manifest.json (required by plugin)
+    # - .next/prerender-manifest.json (required by plugin)
+    # - .next/server/** (entire directory - required by plugin)
+    # - .next/static/** (entire directory - required by plugin)
+    # - .next/standalone/** (may be needed, preserve it)
+    # - Any JSON files (may be manifests)
+    # - Any other files or directories
     
-    # Remove other unnecessary files
-    find .next -name "*.log" -type f -delete 2>/dev/null || true
-    find .next -name "*.tsbuildinfo" -type f -delete 2>/dev/null || true
-    find .next -type d -name "cache" -exec rm -rf {} + 2>/dev/null || true
+    print_info "  Preserved ALL manifest files, BUILD_ID, and directory structure"
+    print_info "  Netlify Next.js plugin requires these files to function correctly"
 fi
-print_success ".next directory cleaned"
+print_success ".next directory minimally cleaned (all plugin files preserved)"
 
 # Step 9: Final size report
 print_info "Step 9: Final size report..."
