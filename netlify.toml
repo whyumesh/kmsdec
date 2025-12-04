@@ -4,12 +4,13 @@
   # This ensures @netlify/plugin-nextjs can find .next directory
   command = "npm ci --legacy-peer-deps && npx prisma generate && npm run build && chmod +x scripts/optimize-for-netlify-full.sh && bash scripts/optimize-for-netlify-full.sh"
   publish = ".next"
+  # With standalone mode, Netlify plugin will handle the deployment structure
   # Build process:
   # 1. Install dependencies (npm ci)
   # 2. Generate Prisma client
   # 3. Build Next.js app (creates .next directory)
   # 4. Run optimization script (cleans up unnecessary files, removes dev deps)
-  # Note: Standalone mode is disabled for faster builds
+  # CRITICAL: Standalone mode enabled to reduce bundle size below 250MB
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
