@@ -6,13 +6,6 @@
 .env.development
 .env.development.local
 
-# Test and debug routes (optional - exclude from production if needed)
-# Uncomment to exclude test routes:
-# src/app/api/test-csrf/**
-# src/app/api/test-storage/**
-# src/app/api/upload/test/**
-# src/app/api/upload/diagnostic/**
-
 # Development files
 *.log
 logs/
@@ -27,3 +20,8 @@ Thumbs.db
 scripts/
 *.bat
 *.sh
+
+# Database files (local development)
+*.db
+*.db-journal
+prisma/dev.db

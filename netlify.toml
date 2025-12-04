@@ -28,8 +28,14 @@
 
 # Optimize function size - use esbuild bundler to tree-shake and minimize function code
 # esbuild will bundle and optimize the function, excluding externalized dependencies
+# Aggressive minification and tree-shaking enabled
 [functions]
   node_bundler = "esbuild"
+  # esbuild automatically performs:
+  # - Tree-shaking (removes unused code)
+  # - Minification (compresses code)
+  # - Dead code elimination
+  # All externalized modules are excluded from bundle
   # Externalize heavy dependencies - these will NOT be bundled, loaded from node_modules at runtime
   # This significantly reduces bundle size by excluding large packages
   external_node_modules = [
@@ -48,12 +54,8 @@
     "@aws-sdk/shared-ini-file-loader",
     "@aws-sdk/util-credentials",
     "cloudinary",
-    "pdf-parse",
     "twilio",
     "csv-parser",
-    "@upstash/ratelimit",
-    "@upstash/redis",
-    "date-fns",
     "uuid",
     "zod",
     "next",
@@ -68,8 +70,23 @@
     "tailwindcss-animate",
     "class-variance-authority",
     "clsx",
-    "react-hot-toast"
+    "react-hot-toast",
+    "@radix-ui/react-alert-dialog",
+    "@radix-ui/react-avatar",
+    "@radix-ui/react-checkbox",
+    "@radix-ui/react-dialog",
+    "@radix-ui/react-dropdown-menu",
+    "@radix-ui/react-icons",
+    "@radix-ui/react-label",
+    "@radix-ui/react-progress",
+    "@radix-ui/react-radio-group",
+    "@radix-ui/react-select",
+    "@radix-ui/react-separator",
+    "@radix-ui/react-slot",
+    "@radix-ui/react-tabs",
+    "@radix-ui/react-toast"
   ]
+  # Note: Radix UI packages are externalized (client-only, not used in server functions)
   # Include ONLY the Prisma query engine binary - required for runtime database queries
   # DO NOT include .env files - use Netlify environment variables instead
   included_files = [

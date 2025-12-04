@@ -23,6 +23,11 @@ tsconfig.tsbuildinfo
 ~$*.xlsx
 ~$*.xls
 
+# Database files (local development)
+*.db
+*.db-journal
+prisma/dev.db
+
 # Documentation files (optional - you may want to keep these)
 # DEPLOYMENT_VALIDATION.md
 # HOW_TO_VALIDATE_DEPLOYMENT.md

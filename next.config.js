@@ -79,15 +79,19 @@ const nextConfig = {
         // Exclude TypeScript source files (keep only .d.ts)
         '**/*.ts',
         '!**/*.d.ts',
-        // Exclude unnecessary Radix UI files
+        // Exclude unnecessary Radix UI files (better tree-shaking)
         'node_modules/@radix-ui/**/*.stories.*',
         'node_modules/@radix-ui/**/README*',
+        'node_modules/@radix-ui/**/*.test.*',
+        'node_modules/@radix-ui/**/__tests__/**',
         // Exclude large unused dependencies
         'node_modules/recharts/**/*.ts',
         'node_modules/recharts/**/examples/**',
-        'node_modules/date-fns/**/locale/**',
-        'node_modules/date-fns/**/esm/**',
-        'node_modules/date-fns/**/fp/**',
+        'node_modules/recharts/**/*.test.*',
+        // Exclude lucide-react source files (better tree-shaking)
+        'node_modules/lucide-react/**/*.ts',
+        'node_modules/lucide-react/**/*.tsx',
+        '!node_modules/lucide-react/**/*.d.ts',
       ],
     },
     serverComponentsExternalPackages: [
@@ -107,9 +111,6 @@ const nextConfig = {
       '@aws-sdk/credential-providers',
       'cloudinary',
       'twilio',
-      '@upstash/ratelimit',
-      '@upstash/redis',
-      'pdf-parse',
       'next-auth',
       '@hookform/resolvers',
       'react-hook-form'
@@ -118,8 +119,14 @@ const nextConfig = {
   // Configure middleware to avoid Edge Function issues
   // Exclude jsonwebtoken from Edge Function bundling
   transpilePackages: [],
-  // Enable SWC minification
+  // Enable SWC minification (aggressive minification)
   swcMinify: true,
+  // Additional minification settings
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'], // Keep errors and warnings
+    } : false,
+  },
   // Optimize bundle
   webpack: (config, { dev, isServer }) => {
     // Externalize large dependencies for server-side (Netlify functions)
@@ -139,11 +146,8 @@ const nextConfig = {
         '@aws-sdk/client-sso-oidc',
         '@aws-sdk/credential-providers',
         'cloudinary',
-        'pdf-parse',
         'twilio',
         'csv-parser',
-        '@upstash/ratelimit',
-        '@upstash/redis',
         'uuid',
         'zod',
         'next-auth',
@@ -156,10 +160,23 @@ const nextConfig = {
       // Also externalize by pattern for better coverage
       config.externals.push({
         '@aws-sdk': 'commonjs @aws-sdk',
-        'canvas': 'commonjs canvas',
         '@prisma': 'commonjs @prisma',
         'prisma': 'commonjs prisma',
+        // Externalize all Radix UI packages (client-only, not used in API routes)
+        '@radix-ui': 'commonjs @radix-ui',
+        // Externalize other client-only packages
+        'lucide-react': 'commonjs lucide-react',
+        'recharts': 'commonjs recharts',
       })
+      
+      // Enable server-side tree-shaking optimizations
+      config.optimization = {
+        ...config.optimization,
+        usedExports: true,
+        sideEffects: false,
+        minimize: true, // Enable minification for server bundles
+        moduleIds: 'deterministic', // Better tree-shaking
+      }
     }
     
     if (!dev && !isServer) {
