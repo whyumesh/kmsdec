@@ -208,11 +208,11 @@ The system uses a comprehensive database schema with the following main entities
    ```
 
 ### Recommended Hosting Platforms
+- Netlify (current)
 - AWS Amplify
 - DigitalOcean App Platform
 - Railway
 - Render
-- Self-hosted (Docker)
 
 ## Contributing
 

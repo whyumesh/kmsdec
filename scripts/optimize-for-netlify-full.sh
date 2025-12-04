@@ -82,10 +82,14 @@ else
     print_info "Step 4: Skipping build (already completed)"
 fi
 
-# Step 5: Remove dev dependencies
-print_info "Step 5: Removing dev dependencies..."
-npm prune --production
-print_success "Dev dependencies removed"
+# Step 5: Skip removing dev dependencies (edge bundler may need them)
+print_info "Step 5: Skipping dev dependency removal (preserves edge function dependencies)..."
+# npm prune --production removes dev dependencies which might include:
+# - TypeScript (needed for edge bundler type resolution)
+# - Build tools that edge bundler uses
+# - Dependencies that Next.js edge runtime needs
+# Keeping all dependencies ensures edge bundler can find everything it needs
+print_success "All dependencies preserved (including dev dependencies)"
 
 # Step 5a: Skip dedupe - can break edge function bundling
 # npm dedupe reorganizes node_modules which can break Netlify edge function bundler
@@ -123,51 +127,31 @@ done
 
 print_success "Prisma binaries optimized"
 
-# Step 7: Remove heavy/unused files
-print_info "Step 7: Removing heavy and unused files..."
+# Step 7: Skip aggressive node_modules cleanup to preserve edge function dependencies
+print_info "Step 7: Skipping aggressive node_modules cleanup (preserves edge function bundling)..."
 
-# Remove TypeScript source files (keep only .d.ts)
-find node_modules -name "*.ts" ! -name "*.d.ts" -not -path "*/node_modules/@types/*" -type f -delete 2>/dev/null || true
+# IMPORTANT: Edge function bundler runs AFTER this script and needs:
+# - Complete node_modules structure
+# - TypeScript source files (for type resolution)
+# - All package files (edge bundler may import them)
+# - Directory structure intact
 
-# Remove test files and directories
-find node_modules -type d \( -name "__tests__" -o -name "test" -o -name "tests" \) -exec rm -rf {} + 2>/dev/null || true
-find node_modules -name "*.test.*" -type f -delete 2>/dev/null || true
-find node_modules -name "*.spec.*" -type f -delete 2>/dev/null || true
+# Only remove platform-specific binaries that are definitely not needed
+# (Windows/Mac binaries when deploying to Linux)
+find node_modules -name "*.exe" -type f -delete 2>/dev/null || true
+find node_modules -name "*.dylib" -type f -delete 2>/dev/null || true
+print_info "  Removed Windows/Mac binaries only"
 
-# Remove source maps
-find node_modules -name "*.map" -type f -delete 2>/dev/null || true
+# DO NOT remove:
+# - TypeScript files (edge bundler needs them for bundling)
+# - Test files (some packages reference them)
+# - Source maps (may be needed for debugging)
+# - Documentation (some packages import from docs)
+# - Directory structure (edge bundler expects specific paths)
+# - Any files in Next.js, @netlify, or edge-related packages
+# - Any files that might be transitively imported
 
-# Remove documentation files
-find node_modules -name "README*" -o -name "CHANGELOG*" -o -name "LICENSE*" -o -name "*.md" -type f -delete 2>/dev/null || true
-
-# Remove example directories
-find node_modules -type d \( -name "examples" -o -name "example" -o -name "docs" -o -name "documentation" \) -exec rm -rf {} + 2>/dev/null || true
-
-# Remove platform-specific binaries (keep Linux)
-find node_modules -name "*.exe" -o -name "*.dylib" -type f -delete 2>/dev/null || true
-find node_modules -type d \( -name "win32*" -o -name "darwin*" -o -name "*windows*" -o -name "*macos*" \) -exec rm -rf {} + 2>/dev/null || true
-
-# Remove SWC platform-specific binaries (keep Linux)
-find node_modules/@swc -type f \( -name "*darwin*" -o -name "*win32*" -o -name "*windows*" -o -name "*macos*" \) -delete 2>/dev/null || true
-
-# Remove esbuild platform-specific binaries (keep Linux)
-find node_modules/esbuild -name "esbuild-*" ! -name "*linux*" -type f -delete 2>/dev/null || true
-
-# Remove recharts examples and TypeScript sources
-find node_modules/recharts -name "*.ts" ! -name "*.d.ts" -type f -delete 2>/dev/null || true
-find node_modules/recharts -type d -name "examples" -exec rm -rf {} + 2>/dev/null || true
-
-# Remove date-fns locale files and alternative builds (keep only needed)
-find node_modules/date-fns -type d \( -name "locale" -o -name "esm" -o -name "fp" \) -exec rm -rf {} + 2>/dev/null || true
-
-# Remove Radix UI stories and examples
-find node_modules/@radix-ui -name "*.stories.*" -type f -delete 2>/dev/null || true
-find node_modules/@radix-ui -name "README*" -type f -delete 2>/dev/null || true
-
-# Remove empty directories
-find node_modules -type d -empty -delete 2>/dev/null || true
-
-print_success "Heavy and unused files removed"
+print_success "node_modules structure preserved for edge function bundling"
 
 # Step 8: Minimal .next cleanup (preserve ALL files needed by Netlify plugin)
 print_info "Step 8: Minimal .next cleanup (preserving all plugin-required files)..."

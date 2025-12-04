@@ -51,10 +51,16 @@ export async function GET(request: NextRequest) {
     }
 
     // Get dashboard statistics in smaller batches to avoid connection limits
-    const [totalVoters, totalVotes] = await Promise.all([
+    const [totalVoters, totalVotes, allVotes] = await Promise.all([
       prisma.voter.count(),
-      prisma.vote.count()
+      prisma.vote.count(),
+      prisma.vote.findMany({
+        select: { voterId: true }
+      })
     ])
+    
+    // Calculate unique voters who actually cast votes
+    const uniqueVotersVoted = new Set(allVotes.map(v => v.voterId)).size
 
     // Get comprehensive voter statistics
     const [
@@ -450,6 +456,7 @@ export async function GET(request: NextRequest) {
       trustMandal: trustMandalStats,
       totalVoters,
       totalVotes,
+      uniqueVotersVoted, // Unique voters who actually cast votes
       voterStats: {
         total: totalVoters,
         active: activeVoters,

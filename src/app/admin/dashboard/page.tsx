@@ -106,6 +106,7 @@ interface DashboardStats {
     karobari: CommitteeStats;
     totalVoters: number;
     totalVotes: number;
+    uniqueVotersVoted?: number;
     voterStats?: VoterStatistics;
 }
 
@@ -600,27 +601,38 @@ export default function AdminDashboard() {
                 )}
 
                 {/* Global Statistics Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 mb-6 sm:mb-8">
                     <Card className="bg-blue-600 text-white">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-blue-100">
-                                Total Voters
+                                Yuva Pankh Voters
                             </CardTitle>
                             <Users className="h-4 w-4 text-blue-200" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
-                                {stats.totalVoters.toLocaleString()}
+                                {stats.voterStats?.zoneAssignments?.yuvaPankh?.toLocaleString() || '0'}
                             </div>
                             <p className="text-xs text-blue-100">
                                 Registered voters
                             </p>
-                            {stats.voterStats && (
-                                <p className="text-xs text-blue-200 mt-1">
-                                    Active: {stats.voterStats.active.toLocaleString()} | 
-                                    Voted: {stats.voterStats.voted.toLocaleString()} ({stats.voterStats.votePercentage}%)
-                                </p>
-                            )}
+                        </CardContent>
+                    </Card>
+
+                    <Card className="bg-blue-600 text-white">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium text-blue-100">
+                                Trustee Voters
+                            </CardTitle>
+                            <Users className="h-4 w-4 text-blue-200" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">
+                                {stats.voterStats?.zoneAssignments?.trustee?.toLocaleString() || '0'}
+                            </div>
+                            <p className="text-xs text-blue-100">
+                                Registered voters
+                            </p>
                         </CardContent>
                     </Card>
 
@@ -653,6 +665,11 @@ export default function AdminDashboard() {
                                 {stats.totalVotes.toLocaleString()}
                             </div>
                             <p className="text-xs text-blue-100">Votes cast</p>
+                            {stats.uniqueVotersVoted !== undefined && (
+                                <p className="text-xs text-blue-200 mt-1">
+                                    Voters Voted: {stats.uniqueVotersVoted.toLocaleString()}
+                                </p>
+                            )}
                         </CardContent>
                     </Card>
 
@@ -693,16 +710,6 @@ export default function AdminDashboard() {
                             <FileText className="h-3 w-3 mr-1" />
                             View Export Data
                         </Button>
-                        <Link href="/admin/candidates">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-xs"
-                            >
-                                <UserCheck className="h-3 w-3 mr-1" />
-                                Manage Candidates
-                            </Button>
-                        </Link>
                         <Link href="/admin/voters">
                             <Button
                                 variant="outline"
@@ -723,16 +730,6 @@ export default function AdminDashboard() {
                                 Upload Voter List
                             </Button>
                         </Link>
-                        <Link href="/admin/results">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-xs"
-                            >
-                                <BarChart3 className="h-3 w-3 mr-1" />
-                                    View Results
-                            </Button>
-                        </Link>
                         <Link href="/admin/election-results">
                             <Button
                                 variant="outline"
@@ -741,26 +738,6 @@ export default function AdminDashboard() {
                             >
                                 <Vote className="h-3 w-3 mr-1" />
                                     Result Declaration
-                            </Button>
-                        </Link>
-                        <Link href="/admin/withdrawn-candidates">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-xs"
-                            >
-                                <UserX className="h-3 w-3 mr-1" />
-                                Withdrawn Candidates
-                            </Button>
-                        </Link>
-                        <Link href="/admin/elections">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-xs"
-                            >
-                                <Settings className="h-3 w-3 mr-1" />
-                                Manage Elections
                             </Button>
                         </Link>
                         <Button variant="outline" size="sm" className="text-xs">
