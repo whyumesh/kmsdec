@@ -50,24 +50,10 @@ const nextConfig = {
         'node_modules/terser/**/*',
         'node_modules/webpack/**/*',
         'node_modules/.cache/**/*',
-        // Exclude Prisma engines we don't need, but KEEP rhel-openssl-3.0.x for Netlify
-        // Exclude other platform engines to reduce bundle size
-        'node_modules/.prisma/client/libquery_engine-linux-x64-openssl-1.0.x*',
-        'node_modules/.prisma/client/libquery_engine-linux-x64-openssl-1.1.x*',
-        'node_modules/.prisma/client/libquery_engine-darwin*',
-        'node_modules/.prisma/client/libquery_engine-windows*',
-        'node_modules/.prisma/client/libquery_engine-debian-openssl-3.0.x*',
-        // Keep rhel-openssl-3.0.x - DO NOT exclude this one
-        // Exclude other engine types from @prisma/engines (but keep rhel)
-        'node_modules/@prisma/engines/libquery_engine-linux-x64-openssl-1.0.x*',
-        'node_modules/@prisma/engines/libquery_engine-linux-x64-openssl-1.1.x*',
-        'node_modules/@prisma/engines/libquery_engine-darwin*',
-        'node_modules/@prisma/engines/libquery_engine-windows*',
-        'node_modules/@prisma/engines/libquery_engine-debian-openssl-3.0.x*',
-        // Keep: libquery_engine-rhel-openssl-3.0.x (needed for Netlify)
-        'node_modules/prisma/migrations/**/*',
-        'node_modules/prisma/**/*.md',
-        'node_modules/prisma/**/*.txt',
+        // Phase 1: Prisma disabled - exclude all Prisma engines
+        'node_modules/.prisma/**/*',
+        'node_modules/@prisma/**/*',
+        'node_modules/prisma/**/*',
         '**/*.test.*',
         '**/*.spec.*',
         '**/__tests__/**/*',
@@ -77,8 +63,6 @@ const nextConfig = {
       ],
     },
     serverComponentsExternalPackages: [
-      'prisma', 
-      '@prisma/client',
       'pg',
       'bcryptjs',
       'jsonwebtoken',
@@ -153,12 +137,6 @@ const nextConfig = {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
             chunks: 'all',
-          },
-          prisma: {
-            test: /[\\/]node_modules[\\/](prisma|@prisma)[\\/]/,
-            name: 'prisma',
-            chunks: 'all',
-            priority: 20,
           },
           radix: {
             test: /[\\/]node_modules[\\/]@radix-ui[\\/]/,

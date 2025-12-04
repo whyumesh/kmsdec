@@ -19,31 +19,13 @@
   NETLIFY_USE_YARN = "false"
   NEXT_TELEMETRY_DISABLED = "1"
 
-# Optimize function size - externalize heavy dependencies to reduce bundle size
-# With esbuild bundler and external_node_modules, dependencies load from node_modules at runtime
+# Optimize function size - use "none" bundler to prevent bundling node_modules
+# This tells Netlify to NOT bundle dependencies - they'll be loaded from node_modules at runtime
 [functions]
-  node_bundler = "esbuild"
-  # Externalize heavy dependencies - these will NOT be bundled, loaded from node_modules at runtime
-  external_node_modules = [
-    "pg",
-    "bcryptjs",
-    "jsonwebtoken",
-    "nodemailer",
-    "@aws-sdk/client-s3",
-    "@aws-sdk/s3-request-presigner",
-    "cloudinary",
-    "pdf-parse",
-    "exceljs",
-    "jspdf",
-    "jsdom",
-    "isomorphic-dompurify",
-    "twilio",
-    "csv-parser",
-    "@upstash/ratelimit",
-    "@upstash/redis"
-  ]
+  node_bundler = "none"
+  # With node_bundler = "none", all node_modules are externalized automatically
+  # No need to list external_node_modules - everything is external
   # Prisma disabled for Phase 1 deployment
-  # included_files will be restored in Phase 2
   included_files = []
 
 # Required environment variables (set these in Netlify dashboard under Site settings → Environment variables)
