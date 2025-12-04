@@ -87,10 +87,11 @@ print_info "Step 5: Removing dev dependencies..."
 npm prune --production
 print_success "Dev dependencies removed"
 
-# Step 5a: Dedupe dependencies to remove duplicates
-print_info "Step 5a: Deduplicating dependencies..."
-npm dedupe --legacy-peer-deps 2>/dev/null || true
-print_success "Dependencies deduplicated"
+# Step 5a: Skip dedupe - can break edge function bundling
+# npm dedupe reorganizes node_modules which can break Netlify edge function bundler
+# The edge bundler expects specific dependency locations
+print_info "Step 5a: Skipping dependency deduplication (preserves edge function compatibility)"
+print_success "Dependencies left as-is for edge function compatibility"
 
 # Step 6: Remove unnecessary Prisma binaries
 print_info "Step 6: Removing unnecessary Prisma binaries..."
