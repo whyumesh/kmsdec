@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
+// Note: Middleware automatically runs on Edge Runtime in Next.js
+// No explicit runtime declaration needed
+
 // Define protected routes
 const protectedRoutes = {
   admin: ['/admin'],
