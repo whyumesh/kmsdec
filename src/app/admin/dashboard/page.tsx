@@ -764,48 +764,6 @@ export default function AdminDashboard() {
                     </Card>
                 </div>
 
-                {/* Comprehensive Voter Statistics */}
-                {stats.voterStats && (
-                    <Card className="mb-8">
-                        <CardHeader>
-                            <CardTitle className="flex items-center space-x-2">
-                                <BarChart3 className="h-5 w-5" />
-                                <span>Comprehensive Voter Statistics</span>
-                            </CardTitle>
-                            <CardDescription>
-                                Detailed breakdown of all voter information
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-6">
-                                {/* Basic Statistics */}
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                    <div className="p-4 bg-blue-50 rounded-lg">
-                                        <div className="text-sm text-gray-600">Active Voters</div>
-                                        <div className="text-2xl font-bold text-blue-600">{stats.voterStats.active.toLocaleString()}</div>
-                                        <div className="text-xs text-gray-500">{((stats.voterStats.active / stats.voterStats.total) * 100).toFixed(1)}%</div>
-                                    </div>
-                                    <div className="p-4 bg-red-50 rounded-lg">
-                                        <div className="text-sm text-gray-600">Inactive Voters</div>
-                                        <div className="text-2xl font-bold text-red-600">{stats.voterStats.inactive.toLocaleString()}</div>
-                                        <div className="text-xs text-gray-500">{((stats.voterStats.inactive / stats.voterStats.total) * 100).toFixed(1)}%</div>
-                                    </div>
-                                    <div className="p-4 bg-green-50 rounded-lg">
-                                        <div className="text-sm text-gray-600">Voted</div>
-                                        <div className="text-2xl font-bold text-green-600">{stats.voterStats.voted.toLocaleString()}</div>
-                                        <div className="text-xs text-gray-500">{stats.voterStats.votePercentage}%</div>
-                                    </div>
-                                    <div className="p-4 bg-yellow-50 rounded-lg">
-                                        <div className="text-sm text-gray-600">Not Voted</div>
-                                        <div className="text-2xl font-bold text-yellow-600">{stats.voterStats.notVoted.toLocaleString()}</div>
-                                        <div className="text-xs text-gray-500">{((stats.voterStats.notVoted / stats.voterStats.total) * 100).toFixed(1)}%</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
-
                 {/* Quick Actions */}
                 <Card className="mb-8">
                     <CardHeader>
@@ -1254,71 +1212,6 @@ export default function AdminDashboard() {
                         )}
                     </div>
                 )}
-
-                {/* Latest Nominations by Committee */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    {/* Yuva Pankh Samiti Latest Nominations */}
-                    <Card>
-                    <CardHeader>
-                        <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-2">
-                                    <Users className="h-5 w-5 text-green-600" />
-                                    <CardTitle className="text-green-600">Yuva Pankh Samiti</CardTitle>
-                            </div>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => fetchDashboardData(true)}
-                                    disabled={isRefreshing}
-                                    className="text-green-600 border-green-300 hover:bg-green-50"
-                                >
-                                    <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                                </Button>
-                        </div>
-                            <CardDescription>Latest youth nominations</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                            {recentCandidates.filter(c => c.electionType === 'YUVA_PANK').length > 0 ? (
-                                <div className="space-y-3">
-                                    {recentCandidates.filter(c => c.electionType === 'YUVA_PANK').slice(0, 3).map((candidate) => (
-                                        <div key={candidate.id} className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <h4 className="font-medium text-gray-900">{candidate.name}</h4>
-                                                    <p className="text-sm text-gray-600">
-                                                        {candidate.zone ? (
-                                                            <span>
-                                                                <span className="font-medium">{candidate.zone.name}</span>
-                                                                <span className="mx-1">•</span>
-                                                                <span className="text-gray-500">{candidate.zone.nameGujarati}</span>
-                                                            </span>
-                                                        ) : (
-                                                            candidate.region
-                                                        )}
-                                                    </p>
-                                                    <p className="text-xs text-gray-500">
-                                                        {new Date(candidate.submittedAt).toLocaleDateString('en-GB')}
-                                                    </p>
-                                                </div>
-                                                <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
-                                                    Pending
-                                                </Badge>
-                                            </div>
-                                        </div>
-                                    ))}
-                                                    </div>
-                            ) : (
-                                <div className="text-center py-8">
-                                    <Users className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                                    <p className="text-gray-500">No recent nominations</p>
-                                                    </div>
-                                                )}
-                        </CardContent>
-                    </Card>
-
-                    {/* Karobari Samiti Latest Nominations - Hidden from UI */}
-
-                </div>
             </main>
 
             {/* Footer */}
