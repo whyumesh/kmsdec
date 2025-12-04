@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import ExcelJS from 'exceljs'
 
 // Force dynamic rendering - never cache this route
 export const dynamic = 'force-dynamic'
@@ -8,6 +7,8 @@ export const revalidate = 0
 
 export async function GET(request: NextRequest) {
   try {
+    // Dynamically import ExcelJS to reduce bundle size
+    const ExcelJS = (await import('exceljs')).default
     const { searchParams } = new URL(request.url)
     const format = searchParams.get('format') || 'excel'
     const type = searchParams.get('type') || 'all'

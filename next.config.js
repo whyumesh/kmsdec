@@ -38,43 +38,56 @@ const nextConfig = {
       '@radix-ui/react-toast'
     ],
     // Exclude unnecessary files from function bundle to reduce size
-    // NOTE: Do NOT exclude @swc/helpers or Prisma - Next.js and Vercel need them at runtime
+    // NOTE: Do NOT exclude @swc/helpers - Next.js needs it at runtime
     outputFileTracingExcludes: {
       '*': [
-        // Exclude platform-specific SWC binaries (keep musl for Vercel)
         'node_modules/@swc/core-linux-x64-gnu/**/*',
+        'node_modules/@swc/core-linux-x64-musl/**/*',
         'node_modules/@swc/core-darwin-x64/**/*',
         'node_modules/@swc/core-darwin-arm64/**/*',
         'node_modules/@swc/core-win32-x64/**/*',
-        // Exclude build tools not needed at runtime
         'node_modules/@esbuild/**/*',
         'node_modules/terser/**/*',
         'node_modules/webpack/**/*',
         'node_modules/.cache/**/*',
-        // Exclude test files and source maps
+        // Exclude Prisma engines (except RHEL which is included via netlify.toml)
+        'node_modules/.prisma/client/libquery_engine-darwin*',
+        'node_modules/.prisma/client/libquery_engine-windows*',
+        'node_modules/.prisma/client/libquery_engine-debian*',
+        'node_modules/.prisma/client/libquery_engine-linux-musl*',
+        'node_modules/@prisma/engines/**/query-engine-darwin*',
+        'node_modules/@prisma/engines/**/query-engine-windows*',
+        'node_modules/@prisma/engines/**/query-engine-debian*',
+        'node_modules/@prisma/engines/**/query-engine-linux-musl*',
+        'node_modules/@prisma/engines/**/migration-engine*',
+        'node_modules/@prisma/engines/**/introspection-engine*',
+        'node_modules/@prisma/engines/**/prisma-fmt*',
+        // Exclude test files and documentation
         '**/*.test.*',
         '**/*.spec.*',
         '**/__tests__/**/*',
         '**/test/**/*',
         '**/tests/**/*',
         '**/*.map',
-        // Exclude unnecessary Prisma binaries (keep linux-musl for Vercel)
-        'node_modules/@prisma/engines/**/query-engine-darwin*',
-        'node_modules/@prisma/engines/**/query-engine-windows*',
-        'node_modules/@prisma/engines/**/query-engine-debian*',
-        'node_modules/@prisma/engines/**/query-engine-rhel*',
-        'node_modules/@prisma/engines/**/migration-engine-darwin*',
-        'node_modules/@prisma/engines/**/migration-engine-windows*',
-        'node_modules/@prisma/engines/**/migration-engine-debian*',
-        'node_modules/@prisma/engines/**/migration-engine-rhel*',
-        'node_modules/@prisma/engines/**/introspection-engine-darwin*',
-        'node_modules/@prisma/engines/**/introspection-engine-windows*',
-        'node_modules/@prisma/engines/**/introspection-engine-debian*',
-        'node_modules/@prisma/engines/**/introspection-engine-rhel*',
-        'node_modules/@prisma/engines/**/prisma-fmt-darwin*',
-        'node_modules/@prisma/engines/**/prisma-fmt-windows*',
-        'node_modules/@prisma/engines/**/prisma-fmt-debian*',
-        'node_modules/@prisma/engines/**/prisma-fmt-rhel*',
+        '**/README*',
+        '**/CHANGELOG*',
+        '**/LICENSE*',
+        '**/examples/**',
+        '**/example/**',
+        '**/docs/**',
+        '**/documentation/**',
+        // Exclude TypeScript source files (keep only .d.ts)
+        '**/*.ts',
+        '!**/*.d.ts',
+        // Exclude unnecessary Radix UI files
+        'node_modules/@radix-ui/**/*.stories.*',
+        'node_modules/@radix-ui/**/README*',
+        // Exclude large unused dependencies
+        'node_modules/recharts/**/*.ts',
+        'node_modules/recharts/**/examples/**',
+        'node_modules/date-fns/**/locale/**',
+        'node_modules/date-fns/**/esm/**',
+        'node_modules/date-fns/**/fp/**',
       ],
     },
     serverComponentsExternalPackages: [
@@ -91,13 +104,19 @@ const nextConfig = {
       'zod',
       '@aws-sdk/client-s3',
       '@aws-sdk/s3-request-presigner',
+      '@aws-sdk/client-sso',
+      '@aws-sdk/client-sso-oidc',
+      '@aws-sdk/credential-providers',
       'cloudinary',
       'isomorphic-dompurify',
       'jsdom',
       'twilio',
       '@upstash/ratelimit',
       '@upstash/redis',
-      'pdf-parse'
+      'pdf-parse',
+      'next-auth',
+      '@hookform/resolvers',
+      'react-hook-form'
     ],
   },
   // Configure middleware to avoid Edge Function issues
@@ -107,12 +126,12 @@ const nextConfig = {
   swcMinify: true,
   // Optimize bundle
   webpack: (config, { dev, isServer }) => {
-    // Externalize large dependencies for server-side (Vercel serverless functions)
+    // Externalize large dependencies for server-side (Netlify functions)
     if (!dev && isServer) {
       config.externals = config.externals || []
-      // Externalize large dependencies to reduce Vercel function bundle size
-      // These will be loaded from node_modules at runtime, not bundled
-      // Vercel automatically handles these via serverComponentsExternalPackages
+      // Externalize large dependencies to reduce Netlify function bundle size
+      // These will be installed at runtime by Netlify, not bundled
+      // NOTE: Prisma is externalized via netlify.toml [functions] configuration
       const largeDependencies = [
         'pg',
         'bcryptjs',
@@ -120,6 +139,9 @@ const nextConfig = {
         'nodemailer',
         '@aws-sdk/client-s3',
         '@aws-sdk/s3-request-presigner',
+        '@aws-sdk/client-sso',
+        '@aws-sdk/client-sso-oidc',
+        '@aws-sdk/credential-providers',
         'cloudinary',
         'pdf-parse',
         'exceljs',
@@ -130,6 +152,11 @@ const nextConfig = {
         'csv-parser',
         '@upstash/ratelimit',
         '@upstash/redis',
+        'uuid',
+        'zod',
+        'next-auth',
+        '@hookform/resolvers',
+        'react-hook-form'
       ]
       // Add as external dependencies
       config.externals.push(...largeDependencies)
@@ -138,6 +165,8 @@ const nextConfig = {
       config.externals.push({
         '@aws-sdk': 'commonjs @aws-sdk',
         'canvas': 'commonjs canvas',
+        '@prisma': 'commonjs @prisma',
+        'prisma': 'commonjs prisma',
       })
     }
     
@@ -218,7 +247,10 @@ const nextConfig = {
   productionBrowserSourceMaps: false,
   // Enable compression
   compress: true,
-  // Skip type checking during build for speed (optional - remove for stricter builds)
+  // Output standalone mode - creates a minimal server build
+  // Note: Netlify's Next.js plugin handles this, but standalone helps reduce bundle size
+  output: 'standalone',
+  // Skip type checking during build for speed
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -230,6 +262,7 @@ const nextConfig = {
   generateBuildId: async () => {
     return 'build-' + Date.now()
   },
+  // Note: output standalone is disabled for Netlify compatibility
 }
 
 module.exports = nextConfig

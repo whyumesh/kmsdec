@@ -68,6 +68,11 @@ print_info "Step 5: Removing dev dependencies..."
 npm prune --production
 print_success "Dev dependencies removed"
 
+# Step 5a: Dedupe dependencies to remove duplicates
+print_info "Step 5a: Deduplicating dependencies..."
+npm dedupe --legacy-peer-deps 2>/dev/null || true
+print_success "Dependencies deduplicated"
+
 # Step 6: Remove unnecessary Prisma binaries
 print_info "Step 6: Removing unnecessary Prisma binaries..."
 KEEP_BINARY="libquery_engine-rhel-openssl-3.0.x.so.node"
@@ -101,26 +106,93 @@ print_success "Prisma binaries optimized"
 # Step 7: Remove heavy/unused files
 print_info "Step 7: Removing heavy and unused files..."
 
+# Remove TypeScript source files (keep only .d.ts)
 find node_modules -name "*.ts" ! -name "*.d.ts" -not -path "*/node_modules/@types/*" -type f -delete 2>/dev/null || true
+
+# Remove test files and directories
 find node_modules -type d \( -name "__tests__" -o -name "test" -o -name "tests" \) -exec rm -rf {} + 2>/dev/null || true
 find node_modules -name "*.test.*" -type f -delete 2>/dev/null || true
 find node_modules -name "*.spec.*" -type f -delete 2>/dev/null || true
+
+# Remove source maps
 find node_modules -name "*.map" -type f -delete 2>/dev/null || true
-find node_modules -name "README*" -o -name "CHANGELOG*" -o -name "*.md" -type f -delete 2>/dev/null || true
-find node_modules -type d \( -name "examples" -o -name "example" \) -exec rm -rf {} + 2>/dev/null || true
+
+# Remove documentation files
+find node_modules -name "README*" -o -name "CHANGELOG*" -o -name "LICENSE*" -o -name "*.md" -type f -delete 2>/dev/null || true
+
+# Remove example directories
+find node_modules -type d \( -name "examples" -o -name "example" -o -name "docs" -o -name "documentation" \) -exec rm -rf {} + 2>/dev/null || true
+
+# Remove platform-specific binaries (keep Linux)
 find node_modules -name "*.exe" -o -name "*.dylib" -type f -delete 2>/dev/null || true
-find node_modules -type d \( -name "win32*" -o -name "darwin*" \) -exec rm -rf {} + 2>/dev/null || true
-find node_modules/@swc -type f -name "*darwin*" -o -name "*win32*" -delete 2>/dev/null || true
+find node_modules -type d \( -name "win32*" -o -name "darwin*" -o -name "*windows*" -o -name "*macos*" \) -exec rm -rf {} + 2>/dev/null || true
+
+# Remove SWC platform-specific binaries (keep Linux)
+find node_modules/@swc -type f \( -name "*darwin*" -o -name "*win32*" -o -name "*windows*" -o -name "*macos*" \) -delete 2>/dev/null || true
+
+# Remove esbuild platform-specific binaries (keep Linux)
 find node_modules/esbuild -name "esbuild-*" ! -name "*linux*" -type f -delete 2>/dev/null || true
+
+# Remove recharts examples and TypeScript sources
+find node_modules/recharts -name "*.ts" ! -name "*.d.ts" -type f -delete 2>/dev/null || true
+find node_modules/recharts -type d -name "examples" -exec rm -rf {} + 2>/dev/null || true
+
+# Remove date-fns locale files and alternative builds (keep only needed)
+find node_modules/date-fns -type d \( -name "locale" -o -name "esm" -o -name "fp" \) -exec rm -rf {} + 2>/dev/null || true
+
+# Remove Radix UI stories and examples
+find node_modules/@radix-ui -name "*.stories.*" -type f -delete 2>/dev/null || true
+find node_modules/@radix-ui -name "README*" -type f -delete 2>/dev/null || true
+
+# Remove empty directories
 find node_modules -type d -empty -delete 2>/dev/null || true
 
 print_success "Heavy and unused files removed"
 
-# Step 8: Final size report
-print_info "Step 8: Final size report..."
+# Step 8: Clean .next directory
+print_info "Step 8: Cleaning .next directory..."
+if [ -d ".next" ]; then
+    # Remove all .map files from .next
+    find .next -name "*.map" -type f -delete 2>/dev/null || true
+    print_info "  Removed .map files from .next"
+    
+    # Remove .next/cache directory
+    rm -rf .next/cache 2>/dev/null || true
+    print_info "  Removed .next/cache directory"
+    
+    # Remove .next/standalone if it exists (not needed for Netlify)
+    rm -rf .next/standalone 2>/dev/null || true
+    print_info "  Removed .next/standalone directory"
+    
+    # Remove other unnecessary files
+    find .next -name "*.log" -type f -delete 2>/dev/null || true
+    find .next -name "*.tsbuildinfo" -type f -delete 2>/dev/null || true
+    find .next -type d -name "cache" -exec rm -rf {} + 2>/dev/null || true
+fi
+print_success ".next directory cleaned"
+
+# Step 9: Final size report
+print_info "Step 9: Final size report..."
 FINAL_NODE_MODULES=$(du -sh node_modules 2>/dev/null | cut -f1 || echo "unknown")
 FINAL_PRISMA=$(du -sh node_modules/.prisma 2>/dev/null | cut -f1 || echo "unknown")
 BUILD_SIZE=$(du -sh .next 2>/dev/null | cut -f1 || echo "unknown")
+
+# Detailed size breakdown
+if [ -d ".next/server" ]; then
+    SERVER_SIZE=$(du -sh .next/server 2>/dev/null | cut -f1 || echo "unknown")
+    echo "   • .next/server: $SERVER_SIZE"
+fi
+
+if [ -d ".next/static" ]; then
+    STATIC_SIZE=$(du -sh .next/static 2>/dev/null | cut -f1 || echo "unknown")
+    echo "   • .next/static: $STATIC_SIZE"
+fi
+
+# Check Prisma binary size
+if [ -f "node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node" ]; then
+    PRISMA_BINARY_SIZE=$(du -h "node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node" 2>/dev/null | cut -f1 || echo "unknown")
+    echo "   • Prisma RHEL binary: $PRISMA_BINARY_SIZE"
+fi
 
 echo ""
 print_success "🎉 Optimization complete!"

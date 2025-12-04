@@ -5,6 +5,7 @@
   command = "chmod +x scripts/optimize-for-netlify-full.sh && bash scripts/optimize-for-netlify-full.sh"
   publish = ".next"
   # The optimization script handles: npm ci, prisma generate, npm run build, npm prune, binary cleanup
+  # Note: standalone mode is enabled in next.config.js to reduce bundle size
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
@@ -26,6 +27,7 @@
 [functions]
   node_bundler = "esbuild"
   # Externalize heavy dependencies - these will NOT be bundled, loaded from node_modules at runtime
+  # This significantly reduces bundle size by excluding large packages
   external_node_modules = [
     "@prisma/client",
     "prisma",
@@ -35,6 +37,12 @@
     "nodemailer",
     "@aws-sdk/client-s3",
     "@aws-sdk/s3-request-presigner",
+    "@aws-sdk/client-sso",
+    "@aws-sdk/client-sso-oidc",
+    "@aws-sdk/credential-providers",
+    "@aws-sdk/middleware-stack",
+    "@aws-sdk/shared-ini-file-loader",
+    "@aws-sdk/util-credentials",
     "cloudinary",
     "pdf-parse",
     "exceljs",
@@ -44,13 +52,52 @@
     "twilio",
     "csv-parser",
     "@upstash/ratelimit",
-    "@upstash/redis"
+    "@upstash/redis",
+    "date-fns",
+    "uuid",
+    "zod",
+    "next",
+    "react",
+    "react-dom",
+    "next-auth",
+    "@hookform/resolvers",
+    "react-hook-form",
+    "recharts",
+    "lucide-react",
+    "tailwind-merge",
+    "tailwindcss-animate",
+    "class-variance-authority",
+    "clsx",
+    "react-hot-toast"
   ]
   # Include ONLY the Prisma query engine binary - required for runtime database queries
   # DO NOT include .env files - use Netlify environment variables instead
   included_files = [
     "node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node",
     "node_modules/@prisma/engines/**/libquery_engine-rhel-openssl-3.0.x.so.node"
+  ]
+  # Exclude unnecessary files from function bundle
+  excluded_patterns = [
+    "**/*.test.*",
+    "**/*.spec.*",
+    "**/__tests__/**",
+    "**/test/**",
+    "**/tests/**",
+    "**/*.map",
+    "**/README*",
+    "**/CHANGELOG*",
+    "**/LICENSE*",
+    "**/examples/**",
+    "**/example/**",
+    "**/docs/**",
+    "**/documentation/**",
+    "**/*.md",
+    "**/*.ts",
+    "!**/*.d.ts",
+    "**/node_modules/@swc/**",
+    "**/node_modules/@esbuild/**",
+    "**/node_modules/webpack/**",
+    "**/node_modules/terser/**"
   ]
 
 # Required environment variables (set these in Netlify dashboard under Site settings → Environment variables)
