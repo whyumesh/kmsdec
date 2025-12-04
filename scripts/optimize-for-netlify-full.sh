@@ -39,29 +39,48 @@ if [ ! -f "package.json" ]; then
     exit 1
 fi
 
-# Step 1: Clean previous builds
-print_info "Step 1: Cleaning previous builds..."
-rm -rf .next
-rm -rf .cache
-rm -rf .turbo
-print_success "Cleanup completed"
+# Step 1: Check if .next already exists (build was run before this script)
+if [ -d ".next" ]; then
+    print_info "Step 1: .next directory found - skipping build (already completed)"
+    SKIP_BUILD=true
+else
+    print_info "Step 1: .next directory not found - will build Next.js app"
+    SKIP_BUILD=false
+    # Clean previous builds
+    rm -rf .next
+    rm -rf .cache
+    rm -rf .turbo
+    print_success "Cleanup completed"
+fi
 
-# Step 2: Install all dependencies (needed for build)
-print_info "Step 2: Installing all dependencies..."
-npm ci --legacy-peer-deps
-print_success "Dependencies installed"
+# Step 2: Install dependencies if not already installed
+if [ "$SKIP_BUILD" = false ]; then
+    print_info "Step 2: Installing all dependencies..."
+    npm ci --legacy-peer-deps
+    print_success "Dependencies installed"
+else
+    print_info "Step 2: Skipping dependency installation (already done)"
+fi
 
-# Step 3: Generate Prisma client
-print_info "Step 3: Generating Prisma client..."
-npx prisma generate
-print_success "Prisma client generated"
+# Step 3: Generate Prisma client if not already generated
+if [ "$SKIP_BUILD" = false ]; then
+    print_info "Step 3: Generating Prisma client..."
+    npx prisma generate
+    print_success "Prisma client generated"
+else
+    print_info "Step 3: Skipping Prisma generation (already done)"
+fi
 
-# Step 4: Build Next.js application
-print_info "Step 4: Building Next.js application..."
-export NODE_ENV=production
-export NEXT_TELEMETRY_DISABLED=1
-npm run build
-print_success "Next.js build completed"
+# Step 4: Build Next.js application (only if not already built)
+if [ "$SKIP_BUILD" = false ]; then
+    print_info "Step 4: Building Next.js application..."
+    export NODE_ENV=production
+    export NEXT_TELEMETRY_DISABLED=1
+    npm run build
+    print_success "Next.js build completed"
+else
+    print_info "Step 4: Skipping build (already completed)"
+fi
 
 # Step 5: Remove dev dependencies
 print_info "Step 5: Removing dev dependencies..."
