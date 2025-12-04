@@ -510,7 +510,7 @@ export default function VoterDashboard() {
   
   // Check age eligibility for Yuva Pankh (must be 39 or younger as of August 31, 2025)
   const dob = voterData.dob
-  const cutoffDate = new Date('2025-08-31')
+  const cutoffDate = new Date('2025-08-31T23:59:59') // End of day cutoff for accurate age calculation
   const ageAsOfCutoff = dob ? calculateAgeAsOf(dob, cutoffDate) : null
   const isAgeEligibleForYuvaPankh = ageAsOfCutoff !== null && ageAsOfCutoff >= 18 && ageAsOfCutoff <= 39
   

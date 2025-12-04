@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import ExcelJS from 'exceljs'
 
 // Force dynamic rendering - never cache this route
 export const dynamic = 'force-dynamic'
@@ -34,6 +33,9 @@ export async function GET(request: NextRequest) {
     timeoutWarning = setTimeout(() => {
       console.warn('⚠️ Export operation taking longer than expected (>5 seconds)')
     }, 5000)
+
+    // Dynamically import ExcelJS to reduce bundle size
+    const ExcelJS = (await import('exceljs')).default
 
     // Create Excel workbook
     const workbook = new ExcelJS.Workbook()
@@ -937,6 +939,9 @@ export async function GET(request: NextRequest) {
       { header: 'Name', key: 'name', width: 28 },
       { header: 'Phone', key: 'phone', width: 18 },
       { header: 'Region', key: 'region', width: 20 },
+      { header: 'Yuva Pankh Eligible', key: 'yuvaEligible', width: 22 },
+      { header: 'Karobari Eligible', key: 'karobariEligible', width: 20 },
+      { header: 'Trustee Eligible', key: 'trusteeEligible', width: 20 },
       { header: 'Yuva Pankh Voted', key: 'yuvaVoted', width: 20 },
       { header: 'Karobari Voted', key: 'karobariVoted', width: 20 },
       { header: 'Trustee Voted', key: 'trusteeVoted', width: 20 }
@@ -953,6 +958,56 @@ export async function GET(request: NextRequest) {
       votersVotedMap.get(electionType)!.add(vote.voterId)
     })
 
+    // Helper function to calculate age as of a specific date
+    const calculateAgeAsOf = (dob: Date | string | null | undefined, referenceDate: Date): number | null => {
+      if (!dob) return null
+      
+      try {
+        let birthDate: Date
+        if (dob instanceof Date) {
+          birthDate = dob
+        } else if (typeof dob === 'string') {
+          // Handle DD/MM/YYYY format
+          const parts = dob.split('/')
+          if (parts.length !== 3) return null
+          const day = parseInt(parts[0], 10)
+          const month = parseInt(parts[1], 10) - 1
+          const year = parseInt(parts[2], 10)
+          if (isNaN(day) || isNaN(month) || isNaN(year)) return null
+          birthDate = new Date(year, month, day)
+        } else {
+          return null
+        }
+        
+        let age = referenceDate.getFullYear() - birthDate.getFullYear()
+        const monthDiff = referenceDate.getMonth() - birthDate.getMonth()
+        
+        if (monthDiff < 0 || (monthDiff === 0 && referenceDate.getDate() < birthDate.getDate())) {
+          age--
+        }
+        
+        return age
+      } catch {
+        return null
+      }
+    }
+
+    // Helper function to check Yuva Pankh eligibility (18-39 as of Aug 31, 2025)
+    const isEligibleForYuvaPankh = (dob: Date | string | null | undefined, yuvaPankZoneId: string | null): boolean => {
+      if (!yuvaPankZoneId) return false
+      const cutoffDate = new Date('2025-08-31T23:59:59')
+      const age = calculateAgeAsOf(dob, cutoffDate)
+      return age !== null && age >= 18 && age <= 39
+    }
+
+    // Helper function to check Trustee eligibility (45+ as of Aug 31, 2025)
+    const isEligibleForTrustee = (dob: Date | string | null | undefined, trusteeZoneId: string | null): boolean => {
+      if (!trusteeZoneId) return false
+      const cutoffDate = new Date('2025-08-31T23:59:59')
+      const age = calculateAgeAsOf(dob, cutoffDate)
+      return age !== null && age >= 45
+    }
+
     // Fetch ALL voters (not just those who voted) for this sheet
     const allVoters = await prisma.voter.findMany({
       select: {
@@ -960,22 +1015,40 @@ export async function GET(request: NextRequest) {
         voterId: true,
         name: true,
         phone: true,
-        region: true
+        region: true,
+        dob: true,
+        yuvaPankZoneId: true,
+        karobariZoneId: true,
+        trusteeZoneId: true,
+        user: {
+          select: {
+            dateOfBirth: true
+          }
+        }
       },
       orderBy: { voterId: 'asc' }
     })
 
-    // Add all voters with Yes/No voting status
+    // Add all voters with Yes/No voting status and eligibility
     allVoters.forEach(voter => {
       const yuvaVoted = votersVotedMap.get('YUVA_PANK')?.has(voter.id) ? 'Yes' : 'No'
       const karobariVoted = votersVotedMap.get('KAROBARI_MEMBERS')?.has(voter.id) ? 'Yes' : 'No'
       const trusteeVoted = votersVotedMap.get('TRUSTEES')?.has(voter.id) ? 'Yes' : 'No'
+
+      // Check eligibility
+      const dob = voter.user?.dateOfBirth || voter.dob
+      const yuvaEligible = isEligibleForYuvaPankh(dob, voter.yuvaPankZoneId) ? 'Yes' : 'No'
+      const karobariEligible = voter.karobariZoneId ? 'Yes' : 'No'
+      const trusteeEligible = isEligibleForTrustee(dob, voter.trusteeZoneId) ? 'Yes' : 'No'
 
       voterVotingStatusSheet.addRow({
         voterId: voter.voterId,
         name: voter.name,
         phone: voter.phone || 'N/A',
         region: voter.region || 'N/A',
+        yuvaEligible,
+        karobariEligible,
+        trusteeEligible,
         yuvaVoted,
         karobariVoted,
         trusteeVoted
@@ -991,60 +1064,122 @@ export async function GET(request: NextRequest) {
     }
     voterVotingStatusSheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } }
 
-    // Apply conditional formatting to Yes/No cells
+    // Apply conditional formatting to Yes/No cells (eligibility and voted status)
     allVoters.forEach((voter, index) => {
       const rowIndex = index + 2 // +2 because row 1 is header
+      
+      // Get eligibility status
+      const dob = voter.user?.dateOfBirth || voter.dob
+      const yuvaEligible = isEligibleForYuvaPankh(dob, voter.yuvaPankZoneId) ? 'Yes' : 'No'
+      const karobariEligible = voter.karobariZoneId ? 'Yes' : 'No'
+      const trusteeEligible = isEligibleForTrustee(dob, voter.trusteeZoneId) ? 'Yes' : 'No'
+      
+      // Get voted status
       const yuvaVoted = votersVotedMap.get('YUVA_PANK')?.has(voter.id) ? 'Yes' : 'No'
       const karobariVoted = votersVotedMap.get('KAROBARI_MEMBERS')?.has(voter.id) ? 'Yes' : 'No'
       const trusteeVoted = votersVotedMap.get('TRUSTEES')?.has(voter.id) ? 'Yes' : 'No'
 
       // Color code: Green for Yes, Red for No
+      // Column E: Yuva Pankh Eligible
+      if (yuvaEligible === 'Yes') {
+        voterVotingStatusSheet.getCell(`E${rowIndex}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF10B981' }
+        }
+        voterVotingStatusSheet.getCell(`E${rowIndex}`).font = { color: { argb: 'FFFFFFFF' }, bold: true }
+      } else {
+        voterVotingStatusSheet.getCell(`E${rowIndex}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFEF4444' }
+        }
+        voterVotingStatusSheet.getCell(`E${rowIndex}`).font = { color: { argb: 'FFFFFFFF' }, bold: true }
+      }
+
+      // Column F: Karobari Eligible
+      if (karobariEligible === 'Yes') {
+        voterVotingStatusSheet.getCell(`F${rowIndex}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF10B981' }
+        }
+        voterVotingStatusSheet.getCell(`F${rowIndex}`).font = { color: { argb: 'FFFFFFFF' }, bold: true }
+      } else {
+        voterVotingStatusSheet.getCell(`F${rowIndex}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFEF4444' }
+        }
+        voterVotingStatusSheet.getCell(`F${rowIndex}`).font = { color: { argb: 'FFFFFFFF' }, bold: true }
+      }
+
+      // Column G: Trustee Eligible
+      if (trusteeEligible === 'Yes') {
+        voterVotingStatusSheet.getCell(`G${rowIndex}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF10B981' }
+        }
+        voterVotingStatusSheet.getCell(`G${rowIndex}`).font = { color: { argb: 'FFFFFFFF' }, bold: true }
+      } else {
+        voterVotingStatusSheet.getCell(`G${rowIndex}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFEF4444' }
+        }
+        voterVotingStatusSheet.getCell(`G${rowIndex}`).font = { color: { argb: 'FFFFFFFF' }, bold: true }
+      }
+
+      // Column H: Yuva Pankh Voted
       if (yuvaVoted === 'Yes') {
-        voterVotingStatusSheet.getCell(`E${rowIndex}`).fill = {
+        voterVotingStatusSheet.getCell(`H${rowIndex}`).fill = {
           type: 'pattern',
           pattern: 'solid',
           fgColor: { argb: 'FF10B981' }
         }
-        voterVotingStatusSheet.getCell(`E${rowIndex}`).font = { color: { argb: 'FFFFFFFF' }, bold: true }
+        voterVotingStatusSheet.getCell(`H${rowIndex}`).font = { color: { argb: 'FFFFFFFF' }, bold: true }
       } else {
-        voterVotingStatusSheet.getCell(`E${rowIndex}`).fill = {
+        voterVotingStatusSheet.getCell(`H${rowIndex}`).fill = {
           type: 'pattern',
           pattern: 'solid',
           fgColor: { argb: 'FFEF4444' }
         }
-        voterVotingStatusSheet.getCell(`E${rowIndex}`).font = { color: { argb: 'FFFFFFFF' }, bold: true }
+        voterVotingStatusSheet.getCell(`H${rowIndex}`).font = { color: { argb: 'FFFFFFFF' }, bold: true }
       }
 
+      // Column I: Karobari Voted
       if (karobariVoted === 'Yes') {
-        voterVotingStatusSheet.getCell(`F${rowIndex}`).fill = {
+        voterVotingStatusSheet.getCell(`I${rowIndex}`).fill = {
           type: 'pattern',
           pattern: 'solid',
           fgColor: { argb: 'FF10B981' }
         }
-        voterVotingStatusSheet.getCell(`F${rowIndex}`).font = { color: { argb: 'FFFFFFFF' }, bold: true }
+        voterVotingStatusSheet.getCell(`I${rowIndex}`).font = { color: { argb: 'FFFFFFFF' }, bold: true }
       } else {
-        voterVotingStatusSheet.getCell(`F${rowIndex}`).fill = {
+        voterVotingStatusSheet.getCell(`I${rowIndex}`).fill = {
           type: 'pattern',
           pattern: 'solid',
           fgColor: { argb: 'FFEF4444' }
         }
-        voterVotingStatusSheet.getCell(`F${rowIndex}`).font = { color: { argb: 'FFFFFFFF' }, bold: true }
+        voterVotingStatusSheet.getCell(`I${rowIndex}`).font = { color: { argb: 'FFFFFFFF' }, bold: true }
       }
 
+      // Column J: Trustee Voted
       if (trusteeVoted === 'Yes') {
-        voterVotingStatusSheet.getCell(`G${rowIndex}`).fill = {
+        voterVotingStatusSheet.getCell(`J${rowIndex}`).fill = {
           type: 'pattern',
           pattern: 'solid',
           fgColor: { argb: 'FF10B981' }
         }
-        voterVotingStatusSheet.getCell(`G${rowIndex}`).font = { color: { argb: 'FFFFFFFF' }, bold: true }
+        voterVotingStatusSheet.getCell(`J${rowIndex}`).font = { color: { argb: 'FFFFFFFF' }, bold: true }
       } else {
-        voterVotingStatusSheet.getCell(`G${rowIndex}`).fill = {
+        voterVotingStatusSheet.getCell(`J${rowIndex}`).fill = {
           type: 'pattern',
           pattern: 'solid',
           fgColor: { argb: 'FFEF4444' }
         }
-        voterVotingStatusSheet.getCell(`G${rowIndex}`).font = { color: { argb: 'FFFFFFFF' }, bold: true }
+        voterVotingStatusSheet.getCell(`J${rowIndex}`).font = { color: { argb: 'FFFFFFFF' }, bold: true }
       }
     })
     
