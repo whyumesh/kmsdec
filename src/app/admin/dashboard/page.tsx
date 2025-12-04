@@ -191,7 +191,6 @@ export default function AdminDashboard() {
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
-    const [isExporting, setIsExporting] = useState(false);
     const [results, setResults] = useState<ResultsData | null>(null);
     const [isLoadingResults, setIsLoadingResults] = useState(false);
     const router = useRouter();
@@ -500,98 +499,9 @@ export default function AdminDashboard() {
         }
     };
 
-    const handleExportInsights = async () => {
-        try {
-            setIsExporting(true);
-            setError(null); // Clear any previous errors
-            
-            console.log('Starting export...');
-            // Add cache-busting timestamp to ensure fresh data
-            const timestamp = new Date().getTime();
-            const response = await fetch(`/api/admin/export-insights?t=${timestamp}`, {
-                method: 'GET',
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache',
-                    'Expires': '0'
-                },
-                // Don't set Content-Type for GET requests expecting binary response
-            });
-            
-            console.log('Export response status:', response.status);
-            
-            if (!response.ok) {
-                // Try to get error message from response
-                let errorMessage = 'Failed to export data';
-                try {
-                    const errorData = await response.json();
-                    errorMessage = errorData.error || errorData.details || errorMessage;
-                } catch (e) {
-                    errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-                }
-                throw new Error(errorMessage);
-            }
-
-            // Check if response is actually a blob
-            const contentType = response.headers.get('Content-Type');
-            console.log('Content-Type:', contentType);
-            
-            // Check for Excel content type (various possible formats)
-            const isExcelFile = contentType && (
-                contentType.includes('spreadsheet') || 
-                contentType.includes('excel') ||
-                contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') ||
-                contentType.includes('application/vnd.ms-excel')
-            );
-            
-            if (!isExcelFile) {
-                // Might be an error response
-                const text = await response.text();
-                console.error('Non-Excel response received:', text.substring(0, 500));
-                try {
-                    const errorData = JSON.parse(text);
-                    throw new Error(errorData.error || errorData.details || 'Invalid response format');
-                } catch (e) {
-                    throw new Error(`Invalid response format from server. Content-Type: ${contentType}`);
-                }
-            }
-
-            // Get the blob from the response
-            const blob = await response.blob();
-            console.log('Blob size:', blob.size, 'bytes');
-            
-            if (blob.size === 0) {
-                throw new Error('Exported file is empty. Please try again.');
-            }
-            
-            // Create a download link
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            
-            // Get filename from Content-Disposition header or use default
-            const contentDisposition = response.headers.get('Content-Disposition');
-            const filename = contentDisposition 
-                ? contentDisposition.split('filename=')[1]?.replace(/"/g, '') 
-                : `election-insights-${new Date().toISOString().split('T')[0]}.xlsx`;
-            
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            
-            // Cleanup
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-            
-            console.log('Export completed successfully');
-        } catch (error) {
-            console.error('Error exporting insights:', error);
-            const errorMessage = error instanceof Error ? error.message : 'Failed to export election insights';
-            setError(`Export failed: ${errorMessage}. Please check the console for more details.`);
-            alert(`Export failed: ${errorMessage}\n\nPlease check the browser console for more details or contact support.`);
-        } finally {
-            setIsExporting(false);
-        }
+    const handleExportInsights = () => {
+        // Navigate to export data page instead of downloading Excel
+        router.push('/admin/export-data');
     };
 
     const getStatusBadge = (status: string) => {
@@ -779,19 +689,9 @@ export default function AdminDashboard() {
                             size="sm"
                             className="text-xs bg-green-600 hover:bg-green-700 text-white"
                             onClick={handleExportInsights}
-                            disabled={isExporting}
                         >
-                            {isExporting ? (
-                                <>
-                                    <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
-                                    Exporting...
-                                </>
-                            ) : (
-                                <>
-                                    <Download className="h-3 w-3 mr-1" />
-                                    Export Election Insights
-                                </>
-                            )}
+                            <FileText className="h-3 w-3 mr-1" />
+                            View Export Data
                         </Button>
                         <Link href="/admin/candidates">
                             <Button

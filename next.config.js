@@ -98,8 +98,6 @@ const nextConfig = {
       'jsonwebtoken',
       'nodemailer',
       'csv-parser',
-      'exceljs',
-      'jspdf',
       'uuid',
       'zod',
       '@aws-sdk/client-s3',
@@ -108,8 +106,6 @@ const nextConfig = {
       '@aws-sdk/client-sso-oidc',
       '@aws-sdk/credential-providers',
       'cloudinary',
-      'isomorphic-dompurify',
-      'jsdom',
       'twilio',
       '@upstash/ratelimit',
       '@upstash/redis',
@@ -144,10 +140,6 @@ const nextConfig = {
         '@aws-sdk/credential-providers',
         'cloudinary',
         'pdf-parse',
-        'exceljs',
-        'jspdf',
-        'jsdom',
-        'isomorphic-dompurify',
         'twilio',
         'csv-parser',
         '@upstash/ratelimit',
@@ -247,9 +239,9 @@ const nextConfig = {
   productionBrowserSourceMaps: false,
   // Enable compression
   compress: true,
-  // Output standalone mode - creates a minimal server build
-  // Note: Netlify's Next.js plugin handles this, but standalone helps reduce bundle size
-  output: 'standalone',
+  // Standalone mode removed for faster builds
+  // Note: If bundle size exceeds 250MB, re-enable this
+  // output: 'standalone',
   // Skip type checking during build for speed
   typescript: {
     ignoreBuildErrors: true,

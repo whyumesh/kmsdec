@@ -7,10 +7,7 @@ export const revalidate = 0
 
 export async function GET(request: NextRequest) {
   try {
-    // Dynamically import ExcelJS to reduce bundle size
-    const ExcelJS = (await import('exceljs')).default
     const { searchParams } = new URL(request.url)
-    const format = searchParams.get('format') || 'excel'
     const type = searchParams.get('type') || 'all'
 
     let data: any = {}
@@ -208,81 +205,12 @@ export async function GET(request: NextRequest) {
       data.results = resultsWithDetails
     }
 
-    if (format === 'excel') {
-      // Create Excel workbook using ExcelJS
-      const workbook = new ExcelJS.Workbook()
-      
-      // Add metadata
-      workbook.creator = 'SKMMMS Election 2026'
-      workbook.created = new Date()
-      workbook.modified = new Date()
-
-      Object.entries(data).forEach(([sheetName, sheetData]) => {
-        if (Array.isArray(sheetData) && sheetData.length > 0) {
-          const worksheet = workbook.addWorksheet(sheetName)
-          
-          // Add headers
-          const headers = Object.keys(sheetData[0])
-          worksheet.columns = headers.map(header => ({
-            header: header,
-            key: header,
-            width: 20
-          }))
-          
-          // Add data rows
-          worksheet.addRows(sheetData)
-          
-          // Style the header row
-          worksheet.getRow(1).font = { bold: true }
-          worksheet.getRow(1).fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FFE6E6FA' }
-          }
-        }
-      })
-
-      const buffer = await workbook.xlsx.writeBuffer()
-
-      return new NextResponse(buffer, {
-        headers: {
-          'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          'Content-Disposition': `attachment; filename="election-data-${new Date().toISOString().split('T')[0]}.xlsx"`
-        }
-      })
-    } else if (format === 'csv') {
-      // Create CSV
-      const csvData = Object.entries(data)
-        .map(([sheetName, sheetData]) => {
-          if (!Array.isArray(sheetData) || sheetData.length === 0) return ''
-          
-          const headers = Object.keys(sheetData[0]).join(',')
-          const rows = sheetData.map(row => 
-            Object.values(row).map(value => 
-              typeof value === 'string' && value.includes(',') 
-                ? `"${value}"` 
-                : value
-            ).join(',')
-          )
-          
-          return `=== ${sheetName.toUpperCase()} ===\n${headers}\n${rows.join('\n')}\n`
-        })
-        .join('\n')
-
-      return new NextResponse(csvData, {
-        headers: {
-          'Content-Type': 'text/csv',
-          'Content-Disposition': `attachment; filename="election-data-${new Date().toISOString().split('T')[0]}.csv"`
-        }
-      })
-    } else {
-      // Return JSON
-      return NextResponse.json({
-        message: 'Election data exported successfully',
-        data,
-        exportedAt: new Date().toISOString()
-      })
-    }
+    // Return JSON data (Excel export removed to reduce bundle size)
+    return NextResponse.json({
+      message: 'Election data exported successfully',
+      data,
+      exportedAt: new Date().toISOString()
+    })
 
   } catch (error) {
     console.error('Error exporting data:', error)

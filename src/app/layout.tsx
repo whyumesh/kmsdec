@@ -30,6 +30,10 @@ export const viewport = {
     initialScale: 1,
 };
 
+// Force dynamic rendering to prevent static generation issues with SessionProvider
+// This ensures all pages are rendered dynamically, which is required for client-side auth
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({
     children,
 }: {
