@@ -92,18 +92,6 @@ const nextConfig = {
         'node_modules/lucide-react/**/*.ts',
         'node_modules/lucide-react/**/*.tsx',
         '!node_modules/lucide-react/**/*.d.ts',
-        // Exclude environment files (should use Netlify env vars)
-        '.env*',
-        // Exclude all AWS SDK packages except what's needed (already externalized)
-        'node_modules/@aws-sdk/**/*.md',
-        'node_modules/@aws-sdk/**/README*',
-        'node_modules/@aws-sdk/**/CHANGELOG*',
-        // Exclude more unnecessary files
-        'node_modules/**/*.min.js.map',
-        'node_modules/**/*.bundle.js.map',
-        'node_modules/**/.github/**',
-        'node_modules/**/.vscode/**',
-        'node_modules/**/.idea/**',
       ],
     },
     serverComponentsExternalPackages: [
@@ -268,9 +256,9 @@ const nextConfig = {
   productionBrowserSourceMaps: false,
   // Enable compression
   compress: true,
-  // CRITICAL: Enable standalone mode to reduce bundle size below 250MB
-  // This creates a minimal server bundle with only required dependencies
-  output: 'standalone',
+  // Standalone mode removed for faster builds
+  // Note: If bundle size exceeds 250MB, re-enable this
+  // output: 'standalone',
   // Skip type checking during build for speed
   typescript: {
     ignoreBuildErrors: true,
@@ -283,7 +271,7 @@ const nextConfig = {
   generateBuildId: async () => {
     return 'build-' + Date.now()
   },
-  // Standalone mode enabled for Netlify to reduce bundle size below 250MB
+  // Note: output standalone is disabled for Netlify compatibility
 }
 
 module.exports = nextConfig
